@@ -1,0 +1,71 @@
+@font-face{
+	font-family:'montserratLight';
+	src:url('fonts/Montserrat-Light.ttf');
+}
+@font-face{
+	font-family:'montserratBold';
+	src:url('fonts/Montserrat-Medium.ttf');
+}
+*{
+	box-sizing:border-box;
+	cursor:inherit;
+}
+body{
+	background-image:linear-gradient(to right,#7f53ac 0,#657ced 100%);
+	cursor:default;
+	font-family:'montserratLight';
+	font-variant-numeric:tabular-nums;
+	overflow:hidden;
+}
+.modal{
+	animation:moveInTop .2s,fadeIn .2s forwards;
+	background-color:#fff;
+	border-radius:1rem;
+	box-shadow:0 0 5rem -2rem #fff;
+	left:50%;
+	padding:1rem 2rem;
+	position:fixed;
+	text-align:center;
+	top:10%;
+	transform:translate(-50%);
+}
+h1{
+	font-family:'montserratBold';
+}
+.button{
+	cursor:pointer;
+	opacity:.3;
+	transition:.3s;
+	user-select:none;
+}
+.button:hover{
+	opacity:1;
+}
+#content{
+	color:white;
+	width:100%;
+}
+@keyframes fadeIn{
+	from{display:initial;opacity:0;}
+	to{opacity:1;}
+}
+@keyframes fadeOut{
+	from{opacity:1;}
+	to{display:none;opacity:0;}
+}
+@keyframes moveInLeft{
+	from{margin-left:-.5rem}
+	to{margin-left:0;}
+}
+@keyframes moveInTop{
+	from{margin-top:-.5rem}
+	to{margin-top:0;}
+}
+@keyframes moveOutLeft{
+	from{margin-left:0;}
+	to{margin-left:-.5rem;}
+}
+@keyframes moveOutTop{
+	from{margin-top:0;}
+	to{margin-top:-.5rem;}
+}

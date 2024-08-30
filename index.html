@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="icon" href="icon.svg">
+		<link rel="stylesheet" type="text/css" href="styles.css">
+		<title>Financial Tracker</title>
+	</head>
+	<body>
+		<div id="landingModal" class="modal">
+			<h1>Welcome!</h1>
+			This webpage allows you to track your financial situation, offering a comprehensive view of your income, expenses, and savings. With intuitive tools and real-time insights, you can make informed decisions to stay on top of your finances.
+			<br>
+			<br>
+			To begin, you can close this dialogue or upload a file to resume previously made progress.
+			<h3 style="display:flex;gap:.5rem;justify-content:center;">
+				<div onClick="closeLandingModal()" class="button" style="background-color:lightgray;border-radius:.85rem;font-family:'montserratBold';line-height:1rem;padding:.5rem 1rem;width:9rem;">
+					Close
+				</div>
+				<div class="button" style="background-color:deepskyblue;border-radius:.85rem;font-family:'montserratBold';line-height:1rem;padding:.5rem 1rem;width:9rem;">
+					<label for="fileInput">
+						Upload File
+					</label>
+					<input id="fileInput" type="file" accept=".txt,.js" onChange="uploadFile()" style="display:none;"/>
+				</div>
+			</h3>
+			<hr>
+			<div style="padding:0 20%;">
+				psst..
+				<h6>
+					the uploaded file should be a .txt or .js file formatted by this site previously.
+				</h6>
+			</div>
+		</div>
+		<div id="content" style="display:none;">
+		</div>
+	</body>
+	<script type="text/javascript" src="scripts.js"></script>
+</html>
