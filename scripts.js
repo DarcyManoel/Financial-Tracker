@@ -173,7 +173,7 @@ function createLoanEntry(section,counterpartyIndex,accountIndex){
 				How much money was transferred?\n
 				(format: non-segmented numbers only)`)
 		}
-		loans[counterpartyIndex].accounts[accountIndex].transfers.push({date:[parseInt(date.split(`-`)[0]),date.split(`-`)[1],date.split(`-`)[2]],transfer:parseInt(transfer)})
+		loans[counterpartyIndex].accounts[accountIndex].transfers.push({date:[parseInt(date.split(`-`)[0]),date.split(`-`)[1],date.split(`-`)[2]],transfer:parseFloat(transfer)})
 		open=1
 		calculateAdditionalInformation(0)
 		open=1
