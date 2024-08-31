@@ -186,7 +186,7 @@ window.onbeforeunload=function(){
 	if(isMemoryChanged)return ``
 }
 function downloadMemory(){
-	// if(!loans.length)alert(`There is no data to save.`);return
+	if(!loans.length)alert(`There is no data to save.`);return
 	const arrayedDate=new Date().toISOString().replaceAll(`T`,`-`).replaceAll(`:`,`-`).split(`.`)[0].split(`-`)
 	const filename=`financials(${arrayedDate[0]}y_${arrayedDate[1]}mo_${arrayedDate[2]}d_${arrayedDate[3]}h_${arrayedDate[4]}mi_${arrayedDate[5]}s).js`
 	const content=`loans=${JSON.stringify(loans,null,`\t`)}\n`
