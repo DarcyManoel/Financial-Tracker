@@ -6,7 +6,7 @@
 		<title>Financial Tracker</title>
 	</head>
 	<body>
-		<div id="landingModal" class="modal">
+		<div id="landingModal" class="card modal" style="animation:fadeIn .2s forwards;">
 			<h1>Welcome!</h1>
 			This webpage allows you to track your financial situation, offering a comprehensive view of your income, expenses, and savings. With intuitive tools and real-time insights, you can make informed decisions to stay on top of your finances.
 			<br>
@@ -20,7 +20,7 @@
 					<label for="fileInput">
 						Upload File
 					</label>
-					<input id="fileInput" type="file" accept=".txt,.js" onChange="uploadFile()" style="display:none;"/>
+					<input id="fileInput" type="file" accept=".txt,.js" onChange="uploadFile(this)" style="display:none;"/>
 				</div>
 			</h3>
 			<hr>
@@ -31,7 +31,43 @@
 				</h6>
 			</div>
 		</div>
-		<div id="content" style="display:none;">
+		<div id="content" style="opacity:0;pointer-events:none;">
+			<div id="menubar">
+				<div class="card" style="padding-right:.5rem;">
+					<select id="trackingSections" style="background:none;border:none;">
+						<option>Loans</option>
+					</select>
+				</div>
+				<div id="memoryManagement" class="cardParent">
+					<div>
+						<label for="fileInput" class="button">Upload</label>
+					</div>
+					<div>
+						<label onClick="downloadMemory()" class="button">Download</label>
+					</div>
+				</div>
+			</div>
+			<div id="contentLoans">
+				<div id="loansCounterpartiesWrapper" class="card">
+					<h3 id="loansCounterpartiesSectionHeader">
+						<span>COUNTERPARTIES</span>
+						<span onClick="createLoanEntry('counterparties')" class="button" style="background-color:lightgray;border-radius:100%;padding:0 .4rem;">+</span>
+					</h3>
+					<div id="loansCounterparties"></div>
+				</div>
+				<div id="loansAccountsWrapper" class="card">
+					<h3 id="loansAccountsSectionHeader">
+						<span>ACCOUNTS</span>
+					</h3>
+					<div id="loansAccounts"></div>
+				</div>
+				<div id="loansTransfersWrapper" class="card">
+					<h3 id="loansTransfersSectionHeader">
+						<span>TRANSFERS</span>
+					</h3>
+					<div id="loansTransfers"></div>
+				</div>
+			</div>
 		</div>
 	</body>
 	<script type="text/javascript" src="scripts.js"></script>
