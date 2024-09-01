@@ -89,6 +89,7 @@ h1{
 #memoryManagement *{
 	padding:.5rem;
 }
+#contentAssets,
 #contentLoans{
 	display:flex;
 	gap:1rem;
@@ -96,17 +97,12 @@ h1{
 	white-space:nowrap;
 	width:100%;
 }
-#loansCounterpartiesWrapper,
-#loansAccountsWrapper,
-#loansTransfersWrapper{
-	display:inline-block;
+.wrapper{
 	flex:1 1 0%;
 	overflow-x:hidden;
 	padding:0 1rem .5rem 1rem;
 }
-#loansCounterpartiesSectionHeader,
-#loansAccountsSectionHeader,
-#loansTransfersSectionHeader{
+.header{
 	background-color:#fff;
 	border-bottom:1px solid #000;
 	color:rgba(255,255,255,.5);
@@ -119,6 +115,11 @@ h1{
 	transform:translate(-1rem);
 	width:calc(100% + 2rem);
 	z-index:1;
+}
+.createEntry{
+	background-color:lightgray;
+	border-radius:100%;
+	padding:0 .4rem;
 }
 details{
 	font-size:.75rem;

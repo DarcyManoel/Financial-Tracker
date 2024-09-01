@@ -1,6 +1,7 @@
 function closeLandingModal(){
 	document.getElementById(`landingModal`).style=`animation:fadeOut .2s forwards;`
 	document.getElementById(`content`).style=`animation:fadeIn .2s;`
+	console.log()
 }
 function uploadFile(that){
 	closeLandingModal()
@@ -42,13 +43,74 @@ function sortArrays(stage){
 	for(i1=0;i1<loans.length;i1++){
 		loans[i1].accounts=loans[i1].accounts.sort(function(a,b){return a.transfersSum-b.transfersSum})
 	}
+	for(i1=0;i1<assets.liquid.length;i1++){
+		assets.liquid[i1].records=assets.liquid[i1].records.sort(function(a,b){return a.date.join(``)-b.date.join(``)})
+	}
+	for(i1=0;i1<assets.illiquid.length;i1++){
+		assets.illiquid[i1].records=assets.illiquid[i1].records.sort(function(a,b){return a.date.join(``)-b.date.join(``)})
+	}
 	renderMenu(stage)
 }
+var assets={liquid:[],illiquid:[]}
 var loans=[]
 function renderMenu(stage){
-	if(loans.length){
+	if(assets.liquid.length||assets.illiquid.length||loans.length){
+		renderAssets()
 		renderLoans(``,stage??0)
 	}
+}
+var dateToday=new Date(`${new Date().getFullYear()}/${new Date().getMonth()+1}/${new Date().getDate()}`)
+function renderAssets(){
+	var contentQueue=``
+	for(i1=0;i1<assets.liquid.length;i1++){
+		var accountRecords=assets.liquid[i1].records
+		var daysSinceUpdate=(dateToday-new Date(accountRecords[accountRecords.length-1].date.join(`/`)))/86400000
+		var colour=daysSinceUpdate>0?`red`:`green`
+		contentQueue+=`
+			<details name="assets" style="color:${colour};">
+				<summary>
+					<span>${assets.liquid[i1].title}</span>
+				</summary>
+				<span style="color:green;">$${numberWithCommas(accountRecords[accountRecords.length-1].balance)}</span><br>
+				<span>updated</span> ${daysSinceUpdate>0?`${daysSinceUpdate>1?`${daysSinceUpdate} days ago`:`yesterday`}`:`today`}
+			</details>`
+	}
+	document.getElementById(`assetsLiquid`).innerHTML=contentQueue
+	var contentQueue=``
+	for(i1=0;i1<assets.illiquid.length;i1++){
+		var accountRecords=assets.illiquid[i1].records
+		var daysSinceUpdate=(dateToday-new Date(accountRecords[accountRecords.length-1].date.join(`/`)))/86400000
+		var colour=daysSinceUpdate>0?`red`:`green`
+		contentQueue+=`
+			<details name="assets" style="color:${colour};">
+				<summary>
+					<span>${assets.illiquid[i1].title}</span>
+				</summary>
+				<span style="color:green;">$${numberWithCommas(accountRecords[accountRecords.length-1].balance)}</span><br>
+				<span>updated</span> ${daysSinceUpdate>0?`${daysSinceUpdate>1?`${daysSinceUpdate} days ago`:`yesterday`}`:`today`}
+			</details>`
+	}
+	document.getElementById(`assetsIlliquid`).innerHTML=contentQueue
+	var contentQueue=``
+	if(loans.length){
+		var loansTotal=0
+		for(i1=0;i1<loans.length;i1++){
+			loansTotal+=loans[i1].accountsSum
+		}
+		contentQueue+=`
+			<details name="assets" style="color:green;">
+				<summary>
+					<span>Loans</span>
+				</summary>
+				${
+					loansTotal>0?
+					`$${numberWithCommas(Math.abs(loansTotal))}`:
+					`<span style="color:red;">-$${numberWithCommas(Math.abs(loansTotal))}</span>`
+				}<br>
+				<span>updated</span> automatically
+			</details>`
+	}
+	document.getElementById(`assetsIntangible`).innerHTML=contentQueue
 }
 var globalCounterpartyIndex=0
 var globalAccountIndex=0
@@ -56,16 +118,15 @@ var open=0
 function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 	if(counterpartyIndex+1)globalCounterpartyIndex=counterpartyIndex
 	if(accountIndex+1)globalAccountIndex=accountIndex
-	var colour
 	var contentQueue=``
 	if(isOpen){
 		stage--
 	}
 	if(!stage){
 		for(i1=0;i1<loans.length;i1++){
-			colour=loans[i1].accountsSum>=0?`green`:`red`
+			var colour=loans[i1].accountsSum>=0?`green`:`red`
 			contentQueue+=`
-				<details onClick="renderLoans(this.open,1,${i1})" style="color:${colour};" name="counterparty" ${open?`${i1==globalCounterpartyIndex?`open`:``}`:``}>
+				<details onClick="renderLoans(this.open,1,${i1})" name="counterparty" ${open?`${i1==globalCounterpartyIndex?`open`:``}`:``} style="color:${colour};">
 					<summary>
 						<span>${loans[i1].counterparty}</span>
 					</summary>
@@ -74,20 +135,20 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 		}
 		document.getElementById(`loansCounterparties`).innerHTML=contentQueue
 		document.getElementById(`loansAccounts`).innerHTML=``
-		document.getElementById(`loansAccountsSectionHeader`).innerHTML=`
+		document.getElementById(`loansAccountsHeader`).innerHTML=`
 			<span>ACCOUNTS</span>`
 		document.getElementById(`loansTransfers`).innerHTML=``
-		document.getElementById(`loansTransfersSectionHeader`).innerHTML=`
+		document.getElementById(`loansTransfersHeader`).innerHTML=`
 			<span>TRANSFERS</span>`
 	}
 	if(stage==1){
-		document.getElementById(`loansAccountsSectionHeader`).innerHTML=`
+		document.getElementById(`loansAccountsHeader`).innerHTML=`
 			<span>ACCOUNTS</span>
-			<span onClick="createLoanEntry('accounts',${globalCounterpartyIndex})" class="button" style="background-color:lightgray;border-radius:100%;padding:0 .4rem;">+</span>`
+			<span onClick="createLoanEntry('accounts',${globalCounterpartyIndex})" class="button createEntry">+</span>`
 		for(i1=0;i1<loans[globalCounterpartyIndex].accounts.length;i1++){
-			colour=loans[globalCounterpartyIndex].accounts[i1].transfersSum>=0?`green`:`red`
+			var colour=loans[globalCounterpartyIndex].accounts[i1].transfersSum>=0?`green`:`red`
 			contentQueue+=`
-				<details onClick="renderLoans(this.open,2,${globalCounterpartyIndex},${i1})" style="color:${colour};" name="account" ${open?`${i1==globalAccountIndex?`open`:``}`:``}>
+				<details onClick="renderLoans(this.open,2,${globalCounterpartyIndex},${i1})" name="account" ${open?`${i1==globalAccountIndex?`open`:``}`:``} style="color:${colour};">
 					<summary>
 						<span>${loans[globalCounterpartyIndex].accounts[i1].title}</span>
 					</summary>
@@ -97,14 +158,14 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 		}
 		document.getElementById(`loansAccounts`).innerHTML=contentQueue
 		document.getElementById(`loansTransfers`).innerHTML=``
-		document.getElementById(`loansTransfersSectionHeader`).innerHTML=`
+		document.getElementById(`loansTransfersHeader`).innerHTML=`
 			<span>TRANSFERS</span>`
 	}else if(stage==2){
-		document.getElementById(`loansTransfersSectionHeader`).innerHTML=`
+		document.getElementById(`loansTransfersHeader`).innerHTML=`
 			<span>TRANSFERS</span>
-			<span onClick="createLoanEntry('transfers',${globalCounterpartyIndex},${globalAccountIndex})" class="button" style="background-color:lightgray;border-radius:100%;padding:0 .4rem;">+</span>`
+			<span onClick="createLoanEntry('transfers',${globalCounterpartyIndex},${globalAccountIndex})" class="button createEntry">+</span>`
 		for(i1=0;i1<loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers.length;i1++){
-			colour=loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].transfer>=0?`green`:`red`
+			var colour=loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].transfer>=0?`green`:`red`
 			contentQueue+=`
 				<details style="color:${colour};">
 					<summary>
@@ -119,10 +180,50 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 	}
 	open=0
 }
+function changeContent(value){
+	var options=document.getElementById(`trackingSections`).options
+	for(i1=0;i1<options.length;i1++)document.getElementById(`content${options[i1].text}`).style=`display:none;`
+	document.getElementById(`content${value}`).style=``
+}
 function numberWithCommas(x) {
 	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g,`,`);
 }
 var isMemoryChanged=0
+function createAssetsEntry(section){
+	var account=prompt(`
+		Which account are you updating??\n
+		(an unrecognised account title will create a new account)`)
+	if(!account)return
+	var date=prompt(`
+		On which date are you recording a balance?\n
+		(format: yyyy-mm-dd)`)
+	if(!date)return
+	while(!/^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/.test(date)){
+		alert(`You did not enter an acceptable date.`)
+		date=prompt(`
+			On which date are you recording a balance?\n
+			(format: yyyy-mm-dd)`)
+	}
+	var balance=prompt(`What's the balance of the account?`)
+	if(!balance)return
+	while(!/^\-?[0-9]+(\.[0-9][0-9]?)?$/.test(balance)){
+		alert(`You did not enter an acceptable number.`)
+		var balance=prompt(`
+			What's the balance of the account?\n
+			(format: non-segmented numbers only)`)
+	}
+	var existing=0
+	for(i1=0;i1<assets[section].length;i1++){
+		if(account==assets[section][i1].title){
+			assets[section][i1].records.push({date:[parseInt(date.split(`-`)[0]),date.split(`-`)[1],date.split(`-`)[2]],balance:parseFloat(balance)})
+			existing=1
+			break
+		}
+	}
+	if(!existing)assets[section==`liquid`?`liquid`:`illiquid`].push({title:account,records:[{date:[parseInt(date.split(`-`)[0]),date.split(`-`)[1],date.split(`-`)[2]],balance:parseFloat(balance)}]})
+	isMemoryChanged=1
+	calculateAdditionalInformation()
+}
 function createLoanEntry(section,counterpartyIndex,accountIndex){
 	var stage
 	if(section==`counterparties`){
@@ -186,10 +287,15 @@ window.onbeforeunload=function(){
 	if(isMemoryChanged)return ``
 }
 function downloadMemory(){
-	if(!loans.length)alert(`There is no data to save.`);return
+	if(!(loans.length+assets.liquid.length+assets.illiquid.length)){
+		alert(`There is no data to save.`)
+		return
+	}
 	const arrayedDate=new Date().toISOString().replaceAll(`T`,`-`).replaceAll(`:`,`-`).split(`.`)[0].split(`-`)
 	const filename=`financials(${arrayedDate[0]}y_${arrayedDate[1]}mo_${arrayedDate[2]}d_${arrayedDate[3]}h_${arrayedDate[4]}mi_${arrayedDate[5]}s).js`
-	const content=`loans=${JSON.stringify(loans,null,`\t`)}\n`
+	const content=`
+		assets=${JSON.stringify(assets,null,`\t`)}\n
+		loans=${JSON.stringify(loans,null,`\t`)}\n`
 	const file=new Blob([content],{type:`text/plain`})
 	const link=document.createElement(`a`)
 	link.href=URL.createObjectURL(file)
