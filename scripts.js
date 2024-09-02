@@ -18,6 +18,7 @@ function calculateAdditionalInformation(stage){
 		var accountsSum=0
 		for(i2=0;i2<loans[i1].accounts.length;i2++){
 			var transfersSum=0
+			var interestSum=0
 			for(i3=0;i3<loans[i1].accounts[i2].transfers.length;i3++){
 				loans[i1].accounts[i2].transfers[i3].date[1]=String(loans[i1].accounts[i2].transfers[i3].date[1]).padStart(2,`0`)
 				loans[i1].accounts[i2].transfers[i3].date[2]=String(loans[i1].accounts[i2].transfers[i3].date[2]).padStart(2,`0`)
@@ -29,10 +30,12 @@ function calculateAdditionalInformation(stage){
 						loans[i1].accounts[i2].transfers[i3].interest=interest
 					}
 				}
-				transfersSum+=loans[i1].accounts[i2].transfers[i3].transfer+(interest*-1)
+				transfersSum+=loans[i1].accounts[i2].transfers[i3].transfer
+				interestSum+=interest
 			}
 			loans[i1].accounts[i2].transfersSum=parseFloat(transfersSum.toFixed(2))
-			accountsSum+=transfersSum
+			loans[i1].accounts[i2].interestSum=parseFloat(interestSum.toFixed(2))
+			accountsSum+=transfersSum-interestSum
 		}
 		loans[i1].accountsSum=parseFloat(accountsSum.toFixed(2))
 	}
@@ -71,7 +74,8 @@ function renderAssets(){
 				<summary>
 					<span>${assets.liquid[i1].title}</span>
 				</summary>
-				<span style="color:green;">$${numberWithCommas(accountRecords[accountRecords.length-1].balance)}</span><br>
+				<span style="color:green;">$${numberWithCommas(accountRecords[accountRecords.length-1].balance)}</span>
+				<br>
 				<span>updated</span> 
 				${
 					daysSinceUpdate>0?
@@ -95,7 +99,8 @@ function renderAssets(){
 				<summary>
 					<span>${assets.illiquid[i1].title}</span>
 				</summary>
-				<span style="color:green;">$${numberWithCommas(accountRecords[accountRecords.length-1].balance)}</span><br>
+				<span style="color:green;">$${numberWithCommas(accountRecords[accountRecords.length-1].balance)}</span>
+				<br>
 				<span>updated</span> 
 				${
 					daysSinceUpdate>0?
@@ -124,7 +129,8 @@ function renderAssets(){
 					loansTotal<0?
 					`$${numberWithCommas(Math.abs(loansTotal))}`:
 					`<span style="color:red;">-$${numberWithCommas(Math.abs(loansTotal))}</span>`
-				}<br>
+				}
+				<br>
 				<span>updated</span> automatically
 			</details>`
 	}
@@ -174,31 +180,50 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 		for(i1=0;i1<loans[globalCounterpartyIndex].accounts.length;i1++){
 			var colour=loans[globalCounterpartyIndex].accounts[i1].transfersSum>=0?`green`:`red`
 			contentQueue+=`
-				<details onClick="renderLoans(this.open,2,${globalCounterpartyIndex},${i1})" name="account" 
+				<details onClick="renderLoans(this.open,2,${globalCounterpartyIndex},${i1})" name="account"
 				${
 					open?
 					`${
 						i1==globalAccountIndex?
-						`open`:
+						`open `:
 						``
 					}`:
 					``
-				} style="color:${colour};">
+				}style="color:${colour};">
 					<summary>
 						<span>${loans[globalCounterpartyIndex].accounts[i1].title}</span>
 					</summary>
 					${
-						loans[globalCounterpartyIndex].accounts[i1].transfersSum>0?
-						`$${numberWithCommas(loans[globalCounterpartyIndex].accounts[i1].transfersSum.toFixed(2))} <span>surplus</span>`:
-						`${
-							loans[globalCounterpartyIndex].accounts[i1].transfersSum<0?
-							`$${numberWithCommas(Math.abs(loans[globalCounterpartyIndex].accounts[i1].transfersSum.toFixed(2)))} <span>outstanding</span>`:
-							`settled`
-						}`
+						loans[globalCounterpartyIndex].accounts[i1].interestRate?
+						`${loans[globalCounterpartyIndex].accounts[i1].interestRate*100}% <span>interest per annum</span>
+						<br>`:
+						``
 					}
 					${
-						loans[globalCounterpartyIndex].accounts[i1].interestRate?
-						`<br>${loans[globalCounterpartyIndex].accounts[i1].interestRate*100}% <span>interest per annum</span>`:
+						loans[globalCounterpartyIndex].accounts[i1].transfersSum>=0?
+						`${
+							loans[globalCounterpartyIndex].accounts[i1].interestRate?
+							`<span>principal</span> <span style="color:green">settled</span>
+							<br>`:
+							`$${numberWithCommas(Math.abs(loans[globalCounterpartyIndex].accounts[i1].transfersSum.toFixed(2)))} <span>principal surplus</span>
+							<br>`
+						}`:
+						`$${numberWithCommas(Math.abs(loans[globalCounterpartyIndex].accounts[i1].transfersSum.toFixed(2)))} <span>principal outstanding</span>
+						<br>`
+					}
+					${
+						loans[globalCounterpartyIndex].accounts[i1].interestSum>0?
+						`
+						${
+							(loans[globalCounterpartyIndex].accounts[i1].interestSum-loans[globalCounterpartyIndex].accounts[i1].transfersSum)>0?
+							`<span style="color:red;">$${Math.abs(loans[globalCounterpartyIndex].accounts[i1].interestSum-loans[globalCounterpartyIndex].accounts[i1].transfersSum).toFixed(2)} outstanding</span> <span>interest</span>`:
+							`${
+								(loans[globalCounterpartyIndex].accounts[i1].interestSum-loans[globalCounterpartyIndex].accounts[i1].transfersSum)<0?
+								`<span style="color:green;">$${Math.abs(loans[globalCounterpartyIndex].accounts[i1].interestSum-loans[globalCounterpartyIndex].accounts[i1].transfersSum).toFixed(2)} surplus</span> <span>interest</span>`:
+								`<span>interest</span> <span style="color:green;">settled</span>`
+							}`
+
+						}`:
 						``
 					}
 				</details>`
@@ -225,18 +250,18 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 					}
 					${
 						loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].period?
-						`<br><span>${loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].period} days from last transfer</span>`:
+						`<br>
+						<span>${loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].period} days from last transfer</span>`:
 						``
 					}
 					${
 						loans[globalCounterpartyIndex].accounts[globalAccountIndex].interestRate?
-						`<br><span>
+						`<br>
 						${
 							loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].interest?
-							numberWithCommas(loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].interest.toFixed(2)):
+							`<span style="color:red;">$${numberWithCommas(loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].interest.toFixed(2))}</span> <span>interest accrued</span>`:
 							``
-						}
-						</span>`:
+						}`:
 						``
 					}
 				</details>`
