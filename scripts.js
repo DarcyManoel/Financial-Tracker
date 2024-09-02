@@ -72,7 +72,16 @@ function renderAssets(){
 					<span>${assets.liquid[i1].title}</span>
 				</summary>
 				<span style="color:green;">$${numberWithCommas(accountRecords[accountRecords.length-1].balance)}</span><br>
-				<span>updated</span> ${daysSinceUpdate>0?`${daysSinceUpdate>1?`${daysSinceUpdate} days ago`:`yesterday`}`:`today`}
+				<span>updated</span> 
+				${
+					daysSinceUpdate>0?
+					`${
+						daysSinceUpdate>1?
+						`${daysSinceUpdate} days ago`:
+						`yesterday`
+					}`:
+					`today`
+				}
 			</details>`
 	}
 	document.getElementById(`assetsLiquid`).innerHTML=contentQueue
@@ -87,7 +96,16 @@ function renderAssets(){
 					<span>${assets.illiquid[i1].title}</span>
 				</summary>
 				<span style="color:green;">$${numberWithCommas(accountRecords[accountRecords.length-1].balance)}</span><br>
-				<span>updated</span> ${daysSinceUpdate>0?`${daysSinceUpdate>1?`${daysSinceUpdate} days ago`:`yesterday`}`:`today`}
+				<span>updated</span> 
+				${
+					daysSinceUpdate>0?
+					`${
+						daysSinceUpdate>1?
+						`${daysSinceUpdate} days ago`:
+						`yesterday`
+					}`:
+					`today`
+				}
 			</details>`
 	}
 	document.getElementById(`assetsIlliquid`).innerHTML=contentQueue
@@ -130,7 +148,15 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 					<summary>
 						<span>${loans[i1].counterparty}</span>
 					</summary>
-					${loans[i1].accountsSum>0?`$${numberWithCommas(loans[i1].accountsSum.toFixed(2))} <span>surplus</span>`:`${loans[i1].accountsSum<0?`$${numberWithCommas(Math.abs(loans[i1].accountsSum.toFixed(2)))} <span>outstanding</span>`:`settled`}`}
+					${
+						loans[i1].accountsSum>0?
+						`$${numberWithCommas(loans[i1].accountsSum.toFixed(2))} <span>surplus</span>`:
+						`${
+							loans[i1].accountsSum<0?
+							`$${numberWithCommas(Math.abs(loans[i1].accountsSum.toFixed(2)))} <span>outstanding</span>`:
+							`settled`
+						}`
+					}
 				</details>`
 		}
 		document.getElementById(`loansCounterparties`).innerHTML=contentQueue
@@ -148,12 +174,33 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 		for(i1=0;i1<loans[globalCounterpartyIndex].accounts.length;i1++){
 			var colour=loans[globalCounterpartyIndex].accounts[i1].transfersSum>=0?`green`:`red`
 			contentQueue+=`
-				<details onClick="renderLoans(this.open,2,${globalCounterpartyIndex},${i1})" name="account" ${open?`${i1==globalAccountIndex?`open`:``}`:``} style="color:${colour};">
+				<details onClick="renderLoans(this.open,2,${globalCounterpartyIndex},${i1})" name="account" 
+				${
+					open?
+					`${
+						i1==globalAccountIndex?
+						`open`:
+						``
+					}`:
+					``
+				} style="color:${colour};">
 					<summary>
 						<span>${loans[globalCounterpartyIndex].accounts[i1].title}</span>
 					</summary>
-					${loans[globalCounterpartyIndex].accounts[i1].transfersSum>0?`$${numberWithCommas(loans[globalCounterpartyIndex].accounts[i1].transfersSum.toFixed(2))} <span>surplus</span>`:`${loans[globalCounterpartyIndex].accounts[i1].transfersSum<0?`$${numberWithCommas(Math.abs(loans[globalCounterpartyIndex].accounts[i1].transfersSum.toFixed(2)))} <span>outstanding</span>`:`settled`}`}
-					${loans[globalCounterpartyIndex].accounts[i1].interestRate?`<br>${loans[globalCounterpartyIndex].accounts[i1].interestRate*100}% <span>interest per annum</span>`:``}
+					${
+						loans[globalCounterpartyIndex].accounts[i1].transfersSum>0?
+						`$${numberWithCommas(loans[globalCounterpartyIndex].accounts[i1].transfersSum.toFixed(2))} <span>surplus</span>`:
+						`${
+							loans[globalCounterpartyIndex].accounts[i1].transfersSum<0?
+							`$${numberWithCommas(Math.abs(loans[globalCounterpartyIndex].accounts[i1].transfersSum.toFixed(2)))} <span>outstanding</span>`:
+							`settled`
+						}`
+					}
+					${
+						loans[globalCounterpartyIndex].accounts[i1].interestRate?
+						`<br>${loans[globalCounterpartyIndex].accounts[i1].interestRate*100}% <span>interest per annum</span>`:
+						``
+					}
 				</details>`
 		}
 		document.getElementById(`loansAccounts`).innerHTML=contentQueue
@@ -171,9 +218,27 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 					<summary>
 						<span>${loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].date.join(`-`)}</span>
 					</summary>
-					${loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].transfer.toFixed(2)>0?`+$${numberWithCommas(loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].transfer.toFixed(2))}`:`-$${numberWithCommas(Math.abs(loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].transfer).toFixed(2))}`}
-					${loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].period?`<br><span>${loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].period} days from last transfer</span>`:``}
-					${loans[globalCounterpartyIndex].accounts[globalAccountIndex].interestRate?`<br><span>${loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].interest?numberWithCommas(loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].interest.toFixed(2)):``}</span>`:``}
+					${
+						loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].transfer.toFixed(2)>0?
+						`+$${numberWithCommas(loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].transfer.toFixed(2))}`:
+						`-$${numberWithCommas(Math.abs(loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].transfer).toFixed(2))}`
+					}
+					${
+						loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].period?
+						`<br><span>${loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].period} days from last transfer</span>`:
+						``
+					}
+					${
+						loans[globalCounterpartyIndex].accounts[globalAccountIndex].interestRate?
+						`<br><span>
+						${
+							loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].interest?
+							numberWithCommas(loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].interest.toFixed(2)):
+							``
+						}
+						</span>`:
+						``
+					}
 				</details>`
 		}
 		document.getElementById(`loansTransfers`).innerHTML=contentQueue
