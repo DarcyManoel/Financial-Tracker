@@ -103,7 +103,7 @@ function renderAssets(){
 					<span>Loans</span>
 				</summary>
 				${
-					loansTotal>0?
+					loansTotal<0?
 					`$${numberWithCommas(Math.abs(loansTotal))}`:
 					`<span style="color:red;">-$${numberWithCommas(Math.abs(loansTotal))}</span>`
 				}<br>
