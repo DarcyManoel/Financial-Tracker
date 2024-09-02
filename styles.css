@@ -51,17 +51,14 @@ h1{
 .button:hover{
 	opacity:1;
 }
-#uploadMemory{
-	bottom:0;
-	color:#fff;
-	left:2rem;
-	position:absolute;
+.buttonFrame{
+	cursor:pointer;
+	color:rgba(0,0,0,.3);
+	transition:.3s;
+	user-select:none;
 }
-#downloadMemory{
-	bottom:0;
-	color:#fff;
-	position:absolute;
-	right:2rem;
+.buttonFrame:hover{
+	color:rgba(0,0,0,1);
 }
 #content{
 	display:flex;
@@ -80,14 +77,14 @@ h1{
 }
 #trackingSections{
 	font-size:1rem;
-	padding:.5rem;
+	padding:.5rem 1rem;
 }
 #memoryManagement{
 	display:flex;
 	gap:1rem;
 }
 #memoryManagement *{
-	padding:.5rem;
+	padding:.5rem 1rem;
 }
 #contentAssets,
 #contentLoans{

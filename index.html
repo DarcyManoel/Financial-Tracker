@@ -33,19 +33,13 @@
 		</div>
 		<div id="content" style="opacity:0;pointer-events:none;">
 			<div id="menubar">
-				<div class="card" style="padding-right:.5rem;">
-					<select id="trackingSections" onChange="changeContent(this.value)" style="background:none;border:none;">
-						<option>Assets</option>
-						<option>Loans</option>
-					</select>
-				</div>
+				<select id="trackingSections" onChange="changeContent(this.value)" class="buttonFrame card" style="appearance:none;border:none;">
+					<option>Assets</option>
+					<option>Loans</option>
+				</select>
 				<div id="memoryManagement" class="cardParent">
-					<div>
-						<label for="fileInput" class="button">Upload</label>
-					</div>
-					<div>
-						<label onClick="downloadMemory()" class="button">Download</label>
-					</div>
+					<label for="fileInput" class="buttonFrame">Upload</label>
+					<label onClick="downloadMemory()" class="buttonFrame">Download</label>
 				</div>
 			</div>
 			<div id="contentAssets">
