@@ -14,6 +14,26 @@ function uploadFile(that){
 	}
 }
 function calculateAdditionalInformation(stage){
+	for(i1=0;i1<assets.liquid.length;i1++){
+		assets.liquid[i1].period=Math.round((new Date(assets.liquid[i1].records[assets.liquid[i1].records.length-1].date.join(`/`))-new Date(assets.liquid[i1].records[0].date.join(`/`)))/86400000)
+		assets.liquid[i1].records[0].period=0
+		var balanceAverage=assets.liquid[i1].records[0].balance
+		for(i2=1;i2<assets.liquid[i1].records.length;i2++){
+			assets.liquid[i1].records[i2].period=Math.round((new Date(assets.liquid[i1].records[i2].date.join(`/`))-new Date(assets.liquid[i1].records[i2-1].date.join(`/`)))/86400000)
+			balanceAverage+=assets.liquid[i1].records[i2].balance
+		}
+		assets.liquid[i1].balanceAverage=balanceAverage/assets.liquid[i1].records.length
+	}
+	for(i1=0;i1<assets.illiquid.length;i1++){
+		assets.illiquid[i1].period=Math.round((new Date(assets.illiquid[i1].records[assets.illiquid[i1].records.length-1].date.join(`/`))-new Date(assets.illiquid[i1].records[0].date.join(`/`)))/86400000)
+		assets.illiquid[i1].records[0].period=0
+		var balanceAverage=assets.illiquid[i1].records[0].balance
+		for(i2=1;i2<assets.illiquid[i1].records.length;i2++){
+			assets.illiquid[i1].records[i2].period=Math.round((new Date(assets.illiquid[i1].records[i2].date.join(`/`))-new Date(assets.illiquid[i1].records[i2-1].date.join(`/`)))/86400000)
+			balanceAverage+=assets.illiquid[i1].records[i2].balance
+		}
+		assets.illiquid[i1].balanceAverage=balanceAverage/assets.illiquid[i1].records.length
+	}
 	for(i1=0;i1<loans.length;i1++){
 		var accountsSum=0
 		for(i2=0;i2<loans[i1].accounts.length;i2++){
@@ -76,6 +96,8 @@ function renderAssets(){
 				</summary>
 				<span style="color:green;">$${numberWithCommas(accountRecords[accountRecords.length-1].balance)}</span>
 				<br>
+				<canvas id="sparkline${assets.liquid[i1].title}" class="sparkline" width="99" height="20"></canvas>
+				<br>
 				<span>updated</span> 
 				${
 					daysSinceUpdate>0?
@@ -89,6 +111,9 @@ function renderAssets(){
 			</details>`
 	}
 	document.getElementById(`assetsLiquid`).innerHTML=contentQueue
+	for(i1=0;i1<assets.liquid.length;i1++){
+		drawSparkline(`sparkline${assets.liquid[i1].title}`,assets.liquid[i1].records,assets.liquid[i1].period,assets.liquid[i1].balanceAverage)
+	}
 	var contentQueue=``
 	for(i1=0;i1<assets.illiquid.length;i1++){
 		var accountRecords=assets.illiquid[i1].records
@@ -100,6 +125,8 @@ function renderAssets(){
 					<span>${assets.illiquid[i1].title}</span>
 				</summary>
 				<span style="color:green;">$${numberWithCommas(accountRecords[accountRecords.length-1].balance)}</span>
+				<br>
+				<canvas id="sparkline${assets.illiquid[i1].title}" class="sparkline" width="99" height="20"></canvas>
 				<br>
 				<span>updated</span> 
 				${
@@ -114,6 +141,9 @@ function renderAssets(){
 			</details>`
 	}
 	document.getElementById(`assetsIlliquid`).innerHTML=contentQueue
+	for(i1=0;i1<assets.illiquid.length;i1++){
+		drawSparkline(`sparkline${assets.illiquid[i1].title}`,assets.illiquid[i1].records,assets.illiquid[i1].period,assets.illiquid[i1].balanceAverage)
+	}
 	var contentQueue=``
 	if(loans.length){
 		var loansTotal=0
@@ -135,6 +165,38 @@ function renderAssets(){
 			</details>`
 	}
 	document.getElementById(`assetsIntangible`).innerHTML=contentQueue
+}
+function drawSparkline(canvasId,dataPoints,period,balanceAverage){
+	var canvas=document.getElementById(canvasId)
+	var canvasContext=canvas.getContext(`2d`)
+	canvasContext.clearRect(0,0,canvas.width,canvas.height)
+	const maxValue=dataPoints.reduce(function(prev,current){
+		return(prev&&prev.balance>current.balance)?prev:current
+	})
+	const minValue=dataPoints.reduce(function(prev,current){
+		return(prev&&prev.balance<current.balance)?prev:current
+	})
+	const yScale=(canvas.height-2)/(maxValue.balance-minValue.balance)
+	const xScale=(canvas.width-2)/(period)
+	canvasContext.beginPath()
+	canvasContext.moveTo(1,canvas.height-(dataPoints[0].balance-minValue.balance)*yScale)
+	var periodAccrued=0
+	for(var i1=1;i1<dataPoints.length;i1++){
+		periodAccrued+=dataPoints[i1].period
+		var x=periodAccrued*xScale+1
+		var y=canvas.height-(dataPoints[i1].balance-minValue.balance)*yScale
+		canvasContext.lineTo(x,y)
+	}
+	canvasContext.lineWidth=1
+	canvasContext.strokeStyle=dataPoints[dataPoints.length-1].balance>balanceAverage?`green`:`red`
+	canvasContext.stroke()
+	canvasContext.beginPath()
+	canvasContext.moveTo(1,canvas.height-(balanceAverage-minValue.balance)*yScale)
+	canvasContext.lineTo(canvas.width,canvas.height-(balanceAverage-minValue.balance)*yScale)
+	canvasContext.lineWidth=1
+	canvasContext.setLineDash([1,1])
+	canvasContext.strokeStyle=`black`
+	canvasContext.stroke()
 }
 var globalCounterpartyIndex=0
 var globalAccountIndex=0
