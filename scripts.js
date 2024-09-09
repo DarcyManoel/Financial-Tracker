@@ -46,12 +46,19 @@ function calculateAdditionalInformation(stage){
 				if(i3>0){
 					loans[i1].accounts[i2].transfers[i3].period=Math.round((new Date(loans[i1].accounts[i2].transfers[i3].date.join(`/`))-new Date(loans[i1].accounts[i2].transfers[i3-1].date.join(`/`)))/86400000)
 					if(loans[i1].accounts[i2].interestRate){
-						interest=parseFloat((transfersSum*(loans[i1].accounts[i2].interestRate*(loans[i1].accounts[i2].transfers[i3].period/365))*-1).toFixed(2))
-						loans[i1].accounts[i2].transfers[i3].interest=interest
+						interestSum+=loans[i1].accounts[i2].transfers[i3].interest=calculateInterest(
+							Math.abs(transfersSum-interestSum)
+							,loans[i1].accounts[i2].interestRate
+							,loans[i1].accounts[i2].transfers[i3].period)
 					}
 				}
 				transfersSum+=loans[i1].accounts[i2].transfers[i3].transfer
-				interestSum+=interest
+			}
+			if(loans[i1].accounts[i2].interestRate){
+				interestSum+=calculateInterest(
+					Math.abs(transfersSum-interestSum)
+					,loans[i1].accounts[i2].interestRate
+					,Math.round((new Date()-new Date(loans[i1].accounts[i2].transfers[loans[i1].accounts[i2].transfers.length-1].date.join(`/`)))/86400000))
 			}
 			loans[i1].accounts[i2].transfersSum=parseFloat(transfersSum.toFixed(2))
 			loans[i1].accounts[i2].interestSum=parseFloat(interestSum.toFixed(2))
@@ -60,6 +67,14 @@ function calculateAdditionalInformation(stage){
 		loans[i1].accountsSum=parseFloat(accountsSum.toFixed(2))
 	}
 	sortArrays(stage)
+}
+function calculateInterest(balance,interestRate,days){
+	var interestRateDaily=interestRate/365
+	var interestAccrued=0
+	for(let i1=0;i1<days;i1++){
+		interestAccrued+=(balance+interestAccrued)*interestRateDaily
+	}
+	return interestAccrued
 }
 function sortArrays(stage){
 	loans=loans.sort(function(a,b){return a.accountsSum-b.accountsSum})
