@@ -474,10 +474,7 @@ function downloadMemory(){
 	}
 	const arrayedDate=new Date().toISOString().split(`T`)[0].split(`-`)
 	const filename=`financials (${arrayedDate[2]}${dateToOrdinalSuffix(arrayedDate[2])} ${monthToMonthName[parseInt(arrayedDate[1])-1]} ${arrayedDate[0]}).js`
-	const content=`
-		// filename uses UTC timezone for consistency
-		assets=${JSON.stringify(assets,null,`\t`)}\n
-		loans=${JSON.stringify(loans,null,`\t`)}\n`
+	const content=`// filename uses UTC for timezone for consistency\nassets=${JSON.stringify(assets,null)}\nloans=${JSON.stringify(loans,null)}`
 	const file=new Blob([content],{type:`text/plain`})
 	const link=document.createElement(`a`)
 	link.href=URL.createObjectURL(file)
