@@ -453,14 +453,29 @@ function createLoanEntry(section,counterpartyIndex,accountIndex){
 window.onbeforeunload=function(){
 	if(isMemoryChanged)return ``
 }
+const dateToOrdinalSuffix=(date)=>{
+	if(date>3&&date<21)return"th"
+	switch(date%10){
+		case 1:
+			return "st"
+		case 2:
+			return "nd"
+		case 3:
+			return "rd"
+		default:
+			return "th"
+	}
+}
+const monthToMonthName=[`Jan`,`Feb`,`Mar`,`Apr`,`May`,`Jun`,`Jul`,`Aug`,`Sep`,`Oct`,`Nov`,`Dec`]
 function downloadMemory(){
 	if(!(loans.length+assets.liquid.length+assets.illiquid.length)){
 		alert(`There is no data to save.`)
 		return
 	}
-	const arrayedDate=new Date().toISOString().replaceAll(`T`,`-`).replaceAll(`:`,`-`).split(`.`)[0].split(`-`)
-	const filename=`financials(${arrayedDate[0]}y_${arrayedDate[1]}mo_${arrayedDate[2]}d_${arrayedDate[3]}h_${arrayedDate[4]}mi_${arrayedDate[5]}s).js`
+	const arrayedDate=new Date().toISOString().split(`T`)[0].split(`-`)
+	const filename=`financials (${arrayedDate[2]}${dateToOrdinalSuffix(arrayedDate[2])} ${monthToMonthName[parseInt(arrayedDate[1])-1]} ${arrayedDate[0]}).js`
 	const content=`
+		// filename uses UTC timezone for consistency
 		assets=${JSON.stringify(assets,null,`\t`)}\n
 		loans=${JSON.stringify(loans,null,`\t`)}\n`
 	const file=new Blob([content],{type:`text/plain`})
