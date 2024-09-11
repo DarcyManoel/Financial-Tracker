@@ -454,16 +454,16 @@ window.onbeforeunload=function(){
 	if(isMemoryChanged)return ``
 }
 const dateToOrdinalSuffix=(date)=>{
-	if(date>3&&date<21)return"th"
+	if(date>3&&date<21)return`th`
 	switch(date%10){
 		case 1:
-			return "st"
+			return`st`
 		case 2:
-			return "nd"
+			return`nd`
 		case 3:
-			return "rd"
+			return`rd`
 		default:
-			return "th"
+			return`th`
 	}
 }
 const monthToMonthName=[`Jan`,`Feb`,`Mar`,`Apr`,`May`,`Jun`,`Jul`,`Aug`,`Sep`,`Oct`,`Nov`,`Dec`]
