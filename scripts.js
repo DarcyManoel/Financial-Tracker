@@ -472,7 +472,33 @@ const dateToOrdinalSuffix=(date)=>{
 			return`th`
 	}
 }
-const monthToMonthName=[`Jan`,`Feb`,`Mar`,`Apr`,`May`,`Jun`,`Jul`,`Aug`,`Sep`,`Oct`,`Nov`,`Dec`]
+const monthToMonthName=
+	[`Jan`
+	,`Feb`
+	,`Mar`
+	,`Apr`
+	,`May`
+	,`Jun`
+	,`Jul`
+	,`Aug`
+	,`Sep`
+	,`Oct`
+	,`Nov`
+	,`Dec`]
+const UNNECESSARY_PROPERTIES=
+	[`period`
+	,`balanceAverage`
+	,`interest`
+	,`transfersSum`
+	,`interestSum`
+	,`accountsSum`
+	,`daysFromLastTransfer`]
+function replacer(key,value){
+	for(let i1=0;i1<UNNECESSARY_PROPERTIES.length;i1++){
+		if(key===UNNECESSARY_PROPERTIES[i1])return undefined
+	}
+	return value
+}
 function downloadMemory(){
 	if(!(loans.length+assets.liquid.length+assets.illiquid.length)){
 		alert(`There is no data to save.`)
@@ -481,7 +507,7 @@ function downloadMemory(){
 	const data={assets:assets,loans:loans}
 	const arrayedDate=new Date().toISOString().split(`T`)[0].split(`-`)
 	const filename=`financials (${arrayedDate[2]}${dateToOrdinalSuffix(arrayedDate[2])} ${monthToMonthName[parseInt(arrayedDate[1])-1]} ${arrayedDate[0]} UTC).json`
-	const content=`${JSON.stringify(data)}`
+	const content=`${JSON.stringify(data,replacer)}`
 	const file=new Blob([content],{type:`application/json`})
 	const link=document.createElement(`a`)
 	link.href=URL.createObjectURL(file)
