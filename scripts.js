@@ -1,16 +1,23 @@
 function closeLandingModal(){
 	document.getElementById(`landingModal`).style=`animation:fadeOut .2s forwards;`
 	document.getElementById(`content`).style=`animation:fadeIn .2s;`
-	console.log()
 }
-function uploadFile(that){
+let assets={liquid:[],illiquid:[]}
+let loans=[]
+function uploadFile(file){
 	closeLandingModal()
 	let files=event.target.files
-	const fileReader=new FileReader()
+	let fileReader=new FileReader()
 	fileReader.readAsText(files[0])
 	fileReader.onload=function(e){
-		eval(e.target.result)
-		calculateAdditionalInformation()
+		try{
+			const data=JSON.parse(e.target.result)
+			if(data.assets.illiquid.length&&data.assets.liquid.length)assets=data.assets
+			if(data.loans.length)loans=data.loans
+			calculateAdditionalInformation()
+		}catch(error){
+			console.error(`Error parsing JSON:`,error)
+		}
 	}
 }
 function calculateAdditionalInformation(stage){
@@ -88,8 +95,6 @@ function sortArrays(stage){
 	}
 	renderMenu(stage)
 }
-let assets={liquid:[],illiquid:[]}
-let loans=[]
 function renderMenu(stage){
 	if(assets.liquid.length||assets.illiquid.length||loans.length){
 		renderAssets()
@@ -471,10 +476,11 @@ function downloadMemory(){
 		alert(`There is no data to save.`)
 		return
 	}
+	const data={assets:assets,loans:loans}
 	const arrayedDate=new Date().toISOString().split(`T`)[0].split(`-`)
-	const filename=`financials (${arrayedDate[2]}${dateToOrdinalSuffix(arrayedDate[2])} ${monthToMonthName[parseInt(arrayedDate[1])-1]} ${arrayedDate[0]}).js`
-	const content=`// filename uses UTC for timezone for consistency\nassets=${JSON.stringify(assets,null)}\nloans=${JSON.stringify(loans,null)}`
-	const file=new Blob([content],{type:`text/plain`})
+	const filename=`financials (${arrayedDate[2]}${dateToOrdinalSuffix(arrayedDate[2])} ${monthToMonthName[parseInt(arrayedDate[1])-1]} ${arrayedDate[0]} UTC).json`
+	const content=`${JSON.stringify(data)}`
+	const file=new Blob([content],{type:`application/json`})
 	const link=document.createElement(`a`)
 	link.href=URL.createObjectURL(file)
 	link.download=filename
