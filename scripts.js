@@ -1,6 +1,6 @@
 function closeLandingModal(){
-	document.getElementById(`landingModal`).style=`animation:fadeOut .2s forwards;`
-	document.getElementById(`content`).style=`animation:fadeIn .2s;`
+	document.getElementById(`landing-modal`).style=`animation:fade-out .2s forwards;`
+	document.getElementById(`content`).style=`animation:fade-in .2s;`
 }
 let assets={liquid:[],illiquid:[]}
 let loans=[]
@@ -129,7 +129,7 @@ function renderAssets(){
 				}
 			</details>`
 	}
-	document.getElementById(`assetsLiquid`).innerHTML=contentQueue
+	document.getElementById(`assets-liquid`).innerHTML=contentQueue
 	for(let i1=0;i1<assets.liquid.length;i1++){
 		drawSparkline(`sparkline${assets.liquid[i1].title}`,assets.liquid[i1].records,assets.liquid[i1].period,assets.liquid[i1].balanceAverage)
 	}
@@ -159,7 +159,7 @@ function renderAssets(){
 				}
 			</details>`
 	}
-	document.getElementById(`assetsIlliquid`).innerHTML=contentQueue
+	document.getElementById(`assets-illiquid`).innerHTML=contentQueue
 	for(let i1=0;i1<assets.illiquid.length;i1++){
 		drawSparkline(`sparkline${assets.illiquid[i1].title}`,assets.illiquid[i1].records,assets.illiquid[i1].period,assets.illiquid[i1].balanceAverage)
 	}
@@ -183,7 +183,7 @@ function renderAssets(){
 				<span>updated</span> automatically
 			</details>`
 	}
-	document.getElementById(`assetsIntangible`).innerHTML=contentQueue
+	document.getElementById(`assets-intangible`).innerHTML=contentQueue
 }
 function drawSparkline(canvasId,dataPoints,period,balanceAverage){
 	let canvas=document.getElementById(canvasId)
@@ -246,18 +246,18 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 					}
 				</details>`
 		}
-		document.getElementById(`loansCounterparties`).innerHTML=contentQueue
-		document.getElementById(`loansAccounts`).innerHTML=``
-		document.getElementById(`loansAccountsHeader`).innerHTML=`
+		document.getElementById(`loans-counterparties`).innerHTML=contentQueue
+		document.getElementById(`loans-accounts`).innerHTML=``
+		document.getElementById(`loans-accounts-header`).innerHTML=`
 			<span>ACCOUNTS</span>`
-		document.getElementById(`loansTransfers`).innerHTML=``
-		document.getElementById(`loansTransfersHeader`).innerHTML=`
+		document.getElementById(`loans-transfers`).innerHTML=``
+		document.getElementById(`loans-transfers-header`).innerHTML=`
 			<span>TRANSFERS</span>`
 	}
 	if(stage==1){
-		document.getElementById(`loansAccountsHeader`).innerHTML=`
+		document.getElementById(`loans-accounts-header`).innerHTML=`
 			<span>ACCOUNTS</span>
-			<span onClick="createLoanEntry('accounts',${globalCounterpartyIndex})" class="button createEntry">+</span>`
+			<span onClick="createLoanEntry('accounts',${globalCounterpartyIndex})" class="button create-entry">+</span>`
 		for(let i1=0;i1<loans[globalCounterpartyIndex].accounts.length;i1++){
 			const COLOUR=loans[globalCounterpartyIndex].accounts[i1].transfersSum>=0?`green`:`red`
 			contentQueue+=`
@@ -309,14 +309,14 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 					}
 				</details>`
 		}
-		document.getElementById(`loansAccounts`).innerHTML=contentQueue
-		document.getElementById(`loansTransfers`).innerHTML=``
-		document.getElementById(`loansTransfersHeader`).innerHTML=`
+		document.getElementById(`loans-accounts`).innerHTML=contentQueue
+		document.getElementById(`loans-transfers`).innerHTML=``
+		document.getElementById(`loans-transfers-header`).innerHTML=`
 			<span>TRANSFERS</span>`
 	}else if(stage==2){
-		document.getElementById(`loansTransfersHeader`).innerHTML=`
+		document.getElementById(`loans-transfers-header`).innerHTML=`
 			<span>TRANSFERS</span>
-			<span onClick="createLoanEntry('transfers',${globalCounterpartyIndex},${globalAccountIndex})" class="button createEntry">+</span>`
+			<span onClick="createLoanEntry('transfers',${globalCounterpartyIndex},${globalAccountIndex})" class="button create-entry">+</span>`
 		for(let i1=0;i1<loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers.length;i1++){
 			const COLOUR=loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].transfer>=0?`green`:`red`
 			contentQueue+=`
@@ -347,14 +347,14 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 					}
 				</details>`
 		}
-		document.getElementById(`loansTransfers`).innerHTML=contentQueue
+		document.getElementById(`loans-transfers`).innerHTML=contentQueue
 	}
 	open=0
 }
 function changeContent(value){
-	const OPTIONS=document.getElementById(`trackingSections`).options
-	for(let i1=0;i1<OPTIONS.length;i1++)document.getElementById(`content${OPTIONS[i1].text}`).style=`display:none;`
-	document.getElementById(`content${value}`).style=``
+	const OPTIONS=document.getElementById(`tracking-sections`).options
+	for(let i1=0;i1<OPTIONS.length;i1++)document.getElementById(`content-${OPTIONS[i1].text.toLowerCase()}`).style=`display:none;`
+	document.getElementById(`content-${value.toLowerCase()}`).style=``
 }
 function numberWithCommas(x) {
 	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g,`,`);
@@ -379,7 +379,7 @@ function createAssetsEntry(section){
 	if(!balance)return
 	while(!/^\-?[0-9]+(\.[0-9][0-9]?)?$/.test(balance)){
 		alert(`You did not enter an acceptable number.`)
-		let balance=prompt(`
+		balance=prompt(`
 			What's the balance of the account?\n
 			(format: non-segmented numbers only)`)
 	}
@@ -398,11 +398,12 @@ function createAssetsEntry(section){
 function createLoanEntry(section,counterpartyIndex,accountIndex){
 	let stage
 	if(section==`counterparties`){
+		let title
 		stage=0
 		let i2=1
 		for(let i1=0;i1<i2;i1++){
-			let title=prompt(`Who is the counterparty to the loan?`)
-			if(!title)return
+			title=prompt(`Who is the counterparty to the loan?`)
+			if(!title.length)return
 			for(let i3=0;i3<loans.length;i3++){
 				if(loans[i3].counterparty==title){
 					i2++
@@ -412,11 +413,12 @@ function createLoanEntry(section,counterpartyIndex,accountIndex){
 		}
 		loans.push({accounts:[],counterparty:title})
 	}else if(section==`accounts`){
+		let title
 		stage=1
 		let i2=1
 		for(let i1=0;i1<i2;i1++){
-			let title=prompt(`What is the purpose of the loan?`)
-			if(!title)return
+			title=prompt(`What is the purpose of the loan?`)
+			if(!title.length)return
 			for(let i3=0;i3<loans[counterpartyIndex].accounts.length;i3++){
 				if(loans[counterpartyIndex].accounts[i3].title==title){
 					i2++
@@ -441,7 +443,7 @@ function createLoanEntry(section,counterpartyIndex,accountIndex){
 		if(!transfer)return
 		while(!/^\-?[0-9]+(\.[0-9][0-9]?)?$/.test(transfer)){
 			alert(`You did not enter an acceptable number.`)
-			let transfer=prompt(`
+			transfer=prompt(`
 				How much money was transferred?\n
 				(format: non-segmented numbers only)`)
 		}

@@ -6,21 +6,21 @@
 		<title>Financial Tracker</title>
 	</head>
 	<body>
-		<div id="landingModal" class="card modal" style="animation:fadeIn .2s forwards;">
+		<div id="landing-modal" class="card modal" style="animation:fadeIn .2s forwards;">
 			<h1>Welcome!</h1>
 			This webpage allows you to track your financial situation, offering a comprehensive view of your income, expenses, and savings. With intuitive tools and real-time insights, you can make informed decisions to stay on top of your finances.
 			<br>
 			<br>
 			To begin, you can close this dialogue or upload a file to resume previously made progress.
 			<h3 style="display:flex;gap:.5rem;justify-content:center;">
-				<div onClick="closeLandingModal()" class="button" style="background-color:lightgray;border-radius:.85rem;font-family:'montserratBold';line-height:1rem;padding:.5rem 1rem;width:9rem;">
+				<div onClick="closeLandingModal()" class="button" style="background-color:lightgray;border-radius:.85rem;font-family:'montserrat-bold';line-height:1rem;padding:.5rem 1rem;width:9rem;">
 					Close
 				</div>
-				<div class="button" style="background-color:deepskyblue;border-radius:.85rem;font-family:'montserratBold';line-height:1rem;padding:.5rem 1rem;width:9rem;">
-					<label for="fileInput">
+				<div class="button" style="background-color:deepskyblue;border-radius:.85rem;font-family:'montserrat-bold';line-height:1rem;padding:.5rem 1rem;width:9rem;">
+					<label for="file-input">
 						Upload File
 					</label>
-					<input id="fileInput" type="file" accept=".json" onChange="uploadFile(this)" style="display:none;"/>
+					<input id="file-input" type="file" accept=".json" onChange="uploadFile(this)" style="display:none;"/>
 				</div>
 			</h3>
 			<hr>
@@ -33,56 +33,56 @@
 		</div>
 		<div id="content" style="opacity:0;pointer-events:none;">
 			<div id="menubar">
-				<select id="trackingSections" onChange="changeContent(this.value)" class="buttonFrame card" style="appearance:none;border:none;">
+				<select id="tracking-sections" onChange="changeContent(this.value)" class="button-frame card" style="appearance:none;border:none;">
 					<option>Assets</option>
 					<option>Loans</option>
 				</select>
-				<div id="memoryManagement" class="cardParent">
-					<label for="fileInput" class="buttonFrame">Upload</label>
-					<label onClick="downloadMemory()" class="buttonFrame">Download</label>
+				<div id="memory-management" class="card-parent">
+					<label for="file-input" class="button-frame">Upload</label>
+					<label onClick="downloadMemory()" class="button-frame">Download</label>
 				</div>
 			</div>
-			<div id="contentAssets">
+			<div id="content-assets">
 				<div class="card wrapper">
-					<h3 id="assetsLiquidHeader" class="header">
+					<h3 id="assets-liquid-header" class="header">
 						<span>Liquid</span>
-						<span onClick="createAssetsEntry('liquid')" class="button createEntry">+</span>
+						<span onClick="createAssetsEntry('liquid')" class="button create-entry">+</span>
 					</h3>
-					<div id="assetsLiquid"></div>
+					<div id="assets-liquid"></div>
 				</div>
 				<div class="card wrapper">
-					<h3 id="assetsIlliquidHeader" class="header">
+					<h3 id="assets-illiquid-header" class="header">
 						<span>Illiquid</span>
-						<span onClick="createAssetsEntry('illiquid')" class="button createEntry">+</span>
+						<span onClick="createAssetsEntry('illiquid')" class="button create-entry">+</span>
 					</h3>
-					<div id="assetsIlliquid"></div>
+					<div id="assets-illiquid"></div>
 				</div>
 				<div class="card wrapper">
-					<h3 id="assetsIntangibleHeader" class="header">
+					<h3 id="assets-intangible-header" class="header">
 						<span>Intangible</span>
 					</h3>
-					<div id="assetsIntangible"></div>
+					<div id="assets-intangible"></div>
 				</div>
 			</div>
-			<div id="contentLoans" style="display:none;">
+			<div id="content-loans" style="display:none;">
 				<div class="card wrapper">
-					<h3 id="loansCounterpartiesHeader" class="header">
+					<h3 id="loans-counterparties-header" class="header">
 						<span>COUNTERPARTIES</span>
-						<span onClick="createLoanEntry('counterparties')" class="button createEntry">+</span>
+						<span onClick="createLoanEntry('counterparties')" class="button create-entry">+</span>
 					</h3>
-					<div id="loansCounterparties"></div>
+					<div id="loans-counterparties"></div>
 				</div>
 				<div class="card wrapper">
-					<h3 id="loansAccountsHeader" class="header">
+					<h3 id="loans-accounts-header" class="header">
 						<span>ACCOUNTS</span>
 					</h3>
-					<div id="loansAccounts"></div>
+					<div id="loans-accounts"></div>
 				</div>
 				<div class="card wrapper">
-					<h3 id="loansTransfersHeader" class="header">
+					<h3 id="loans-transfers-header" class="header">
 						<span>TRANSFERS</span>
 					</h3>
-					<div id="loansTransfers"></div>
+					<div id="loans-transfers"></div>
 				</div>
 			</div>
 		</div>
