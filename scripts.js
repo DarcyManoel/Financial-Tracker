@@ -53,7 +53,7 @@ function calculateAdditionalInformation(stage){
 					loans[i1].accounts[i2].transfers[i3].period=Math.round((new Date(loans[i1].accounts[i2].transfers[i3].date.join(`/`))-new Date(loans[i1].accounts[i2].transfers[i3-1].date.join(`/`)))/86400000)
 					if(loans[i1].accounts[i2].interestRate){
 						interestSum+=loans[i1].accounts[i2].transfers[i3].interest=calculateInterest(
-							Math.abs(transfersSum-interestSum)
+							(transfersSum-interestSum)*-1
 							,loans[i1].accounts[i2].interestRate
 							,loans[i1].accounts[i2].transfers[i3].period)
 					}
@@ -62,7 +62,7 @@ function calculateAdditionalInformation(stage){
 			}
 			if(loans[i1].accounts[i2].interestRate){
 				interestSum+=calculateInterest(
-					Math.abs(transfersSum-interestSum)
+					(transfersSum-interestSum)*-1
 					,loans[i1].accounts[i2].interestRate
 					,Math.round((new Date()-new Date(loans[i1].accounts[i2].transfers[loans[i1].accounts[i2].transfers.length-1].date.join(`/`)))/86400000))
 			}
@@ -78,6 +78,7 @@ function calculateInterest(balance,interestRate,days){
 	const INTEREST_RATE_PER_DAY=interestRate/365
 	let interestAccrued=0
 	for(let i1=0;i1<days;i1++){
+		if(balance+interestAccrued<=0)break
 		interestAccrued+=(balance+interestAccrued)*INTEREST_RATE_PER_DAY
 	}
 	return interestAccrued
