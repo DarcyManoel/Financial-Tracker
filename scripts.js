@@ -258,7 +258,7 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 	if(stage==1){
 		document.getElementById(`loans-accounts-header`).innerHTML=`
 			<span>ACCOUNTS</span>
-			<span onClick="createLoanEntry('accounts',${globalCounterpartyIndex})" class="button create-entry">+</span>`
+			<span onClick="createEntry('loans','accounts',${globalCounterpartyIndex})" class="button create-entry">+</span>`
 		for(let i1=0;i1<loans[globalCounterpartyIndex].accounts.length;i1++){
 			const COLOUR=loans[globalCounterpartyIndex].accounts[i1].transfersSum>=0?`green`:`red`
 			contentQueue+=`
@@ -317,7 +317,7 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 	}else if(stage==2){
 		document.getElementById(`loans-transfers-header`).innerHTML=`
 			<span>TRANSFERS</span>
-			<span onClick="createLoanEntry('transfers',${globalCounterpartyIndex},${globalAccountIndex})" class="button create-entry">+</span>`
+			<span onClick="createEntry('loans','transfers',${globalCounterpartyIndex},${globalAccountIndex})" class="button create-entry">+</span>`
 		for(let i1=0;i1<loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers.length;i1++){
 			const COLOUR=loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].transfer>=0?`green`:`red`
 			contentQueue+=`
@@ -360,102 +360,148 @@ function changeContent(value){
 function numberWithCommas(x) {
 	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g,`,`);
 }
-let isMemoryChanged=0
-function createAssetsEntry(section){
-	let account=prompt(`
-		Which account are you updating??\n
-		(an unrecognised account title will create a new account)`)
-	if(!account)return
-	let date=prompt(`
-		On which date are you recording a balance?\n
-		(format: yyyy-mm-dd)`)
-	if(!date)return
-	while(!/^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/.test(date)){
-		alert(`You did not enter an acceptable date.`)
-		date=prompt(`
-			On which date are you recording a balance?\n
-			(format: yyyy-mm-dd)`)
-	}
-	let balance=prompt(`What's the balance of the account?`)
-	if(!balance)return
-	while(!/^\-?[0-9]+(\.[0-9][0-9]?)?$/.test(balance)){
-		alert(`You did not enter an acceptable number.`)
-		balance=prompt(`
-			What's the balance of the account?\n
-			(format: non-segmented numbers only)`)
-	}
-	let existing=0
-	for(let i1=0;i1<assets[section].length;i1++){
-		if(account==assets[section][i1].title){
-			assets[section][i1].records.push({date:[parseInt(date.split(`-`)[0]),date.split(`-`)[1],date.split(`-`)[2]],balance:parseFloat(balance)})
-			existing=1
-			break
-		}
-	}
-	if(!existing)assets[section==`liquid`?`liquid`:`illiquid`].push({title:account,records:[{date:[parseInt(date.split(`-`)[0]),date.split(`-`)[1],date.split(`-`)[2]],balance:parseFloat(balance)}]})
-	isMemoryChanged=1
-	calculateAdditionalInformation()
+const INSERTION_TEMPLATE_LOANS={
+	counterparties:{
+		title:`COUNTERPARTY`,
+		fields:`
+			<span id="data-entry-name-wrapper" data-before="!" style="color:initial;">
+				<input id="data-entry-name" type="text" placeholder="Counterparty name..." onKeyUp="testValidity(this.id)"/>
+			</span>`},
+	accounts:{
+		title:`ACCOUNT`,
+		fields:`
+			<span id="data-entry-name-wrapper" data-before="!" style="color:initial;">
+				<input id="data-entry-name" type="text" placeholder="Account name..." onKeyUp="testValidity(this.id)"/>
+			</span>`},
+	transfers:{
+		title:`TRANSFER`,
+		fields:`
+			<span id="data-entry-value-wrapper" data-before="!" style="color:initial;">
+				<input id="data-entry-value" type="text" placeholder="Transfer amount..." onKeyUp="testValidity(this.id)"/>
+			</span>
+			<span id="data-entry-value-date-wrapper" data-before="!" style="color:initial;">
+				<input id="data-entry-value-date" type="date" onChange="testValidity(this.id)"/>
+			</span>`}
 }
-function createLoanEntry(section,counterpartyIndex,accountIndex){
-	let stage
-	if(section==`counterparties`){
-		let title
-		stage=0
-		let i2=1
-		for(let i1=0;i1<i2;i1++){
-			title=prompt(`Who is the counterparty to the loan?`)
-			if(!title.length)return
-			for(let i3=0;i3<loans.length;i3++){
-				if(loans[i3].counterparty==title){
-					i2++
-					alert(`That counterparty already exists.`)
-				}
-			}
-		}
-		loans.push({accounts:[],counterparty:title})
-	}else if(section==`accounts`){
-		let title
-		stage=1
-		let i2=1
-		for(let i1=0;i1<i2;i1++){
-			title=prompt(`What is the purpose of the loan?`)
-			if(!title.length)return
-			for(let i3=0;i3<loans[counterpartyIndex].accounts.length;i3++){
-				if(loans[counterpartyIndex].accounts[i3].title==title){
-					i2++
-					alert(`That account already exists.`)
-				}
-			}
-		}
-		loans[globalCounterpartyIndex].accounts.push({title:title,transfers:[]})
-	}else if(section==`transfers`){
-		stage=2
-		let date=prompt(`
-			When did the transfer occur?\n
-			(format: yyyy-mm-dd)`)
-		if(!date)return
-		while(!/^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/.test(date)){
-			alert(`You did not enter an acceptable date.`)
-			date=prompt(`
-				When did the transfer occur?\n
-				(format: yyyy-mm-dd)`)
-		}
-		let transfer=prompt(`How much money was transferred?`)
-		if(!transfer)return
-		while(!/^\-?[0-9]+(\.[0-9][0-9]?)?$/.test(transfer)){
-			alert(`You did not enter an acceptable number.`)
-			transfer=prompt(`
-				How much money was transferred?\n
-				(format: non-segmented numbers only)`)
-		}
-		loans[counterpartyIndex].accounts[accountIndex].transfers.push({date:[parseInt(date.split(`-`)[0]),date.split(`-`)[1],date.split(`-`)[2]],transfer:parseFloat(transfer)})
-		open=1
-		calculateAdditionalInformation(0)
-		open=1
-		calculateAdditionalInformation(1)
+let isMemoryChanged=0
+function createEntry(sectionMajor,sectionMinor,counterpartyIndex,accountIndex){
+	document.getElementById(`page-cover`).classList.add(`cover`)
+	document.getElementById(`data-entry`).style=`animation:fade-in .2s forwards;`
+	switch(sectionMajor){
+		case `assets`:
+			document.getElementById(`data-entry`).innerHTML=`
+				<h3 style="font-family:'montserrat-bold';">UPDATE ACCOUNT</h3>
+				<div style="display:flex;flex-direction:column;">
+					<span id="data-entry-name-wrapper" data-before="!" style="color:initial;">
+						<input id="data-entry-name" type="text" placeholder="Account name..." onKeyUp="testValidity(this.id)"/>
+					</span>
+					<span id="data-entry-value-wrapper" data-before="!" style="color:initial;">
+						<input id="data-entry-value" type="number" placeholder="Account balance..." onKeyUp="testValidity(this.id)"/>
+					</span>
+					<span id="data-entry-value-date-wrapper" data-before="!" style="color:initial;">
+						<input id="data-entry-value-date" type="date" onChange="testValidity(this.id)"/>
+					</span>
+				</div>
+				<h3 style="display:flex;gap:.5rem;justify-content:center;">
+					<div onClick="closeDataEntry()" class="button button-close">
+						Cancel
+					</div>
+					<div class="button button-continue" onClick="submitData('${sectionMajor}','${sectionMinor}')">
+						Submit
+					</div>
+				</h3>
+				<div style="padding:0 10%;">
+					psst..
+					<h6>
+						an unrecognised account title will create a new account.
+					</h6>
+				</div>`
+			break
+		case `loans`:
+			document.getElementById(`data-entry`).innerHTML=`
+				<h3 style="font-family:'montserrat-bold';">NEW ${INSERTION_TEMPLATE_LOANS[sectionMinor].title}</h3>
+				<div style="display:flex;flex-direction:column;">
+					${INSERTION_TEMPLATE_LOANS[sectionMinor].fields}
+				</div>
+				<h3 style="display:flex;gap:.5rem;justify-content:center;">
+					<div onClick="closeDataEntry()" class="button button-close">
+						Cancel
+					</div>
+					<div class="button button-continue" onClick="submitData('${sectionMajor}','${sectionMinor}')">
+						Submit
+					</div>
+				</h3>`
+			break
 	}
+}
+function testValidity(elementID){
+	if(document.getElementById(elementID).value.length)
+		document.getElementById(`${elementID}-wrapper`).setAttribute(`data-before`,``)
+	else
+		document.getElementById(`${elementID}-wrapper`).setAttribute(`data-before`,`!`)
+}
+function closeDataEntry(){
+	document.getElementById(`page-cover`).classList.remove(`cover`)
+	document.getElementById(`data-entry`).style=`animation:fade-out .2s forwards;`
+}
+function submitData(sectionMajor,sectionMinor){
+	let stage
+	switch(sectionMajor){
+		case `assets`:
+			if(!document.getElementById(`data-entry-name`).value.length)return
+			if(!document.getElementById(`data-entry-value`).value.length)return
+			if(!document.getElementById(`data-entry-value-date`).value.length)return
+			for(let i1=0;i1<assets[sectionMinor].length;i1++){
+				if(document.getElementById(`data-entry-name`).value==assets[sectionMinor][i1].title){
+					assets[sectionMinor][i1].records.push(
+						{date:document.getElementById(`data-entry-value-date`).value.split(`-`)
+						,balance:parseFloat(document.getElementById(`data-entry-value`).value)})
+					closeDataEntry()
+					isMemoryChanged=1
+					calculateAdditionalInformation()
+					return
+				}
+			}
+			assets[sectionMinor==`liquid`?`liquid`:`illiquid`].push(
+				{title:document.getElementById(`data-entry-name`).value
+				,records:[
+					{date:document.getElementById(`data-entry-value-date`).value.split(`-`)
+					,balance:parseFloat(document.getElementById(`data-entry-value`).value)}]})
+			break
+		case `loans`:
+			switch(sectionMinor){
+				case `counterparties`:
+					stage=0
+					if(!document.getElementById(`data-entry-name`).value.length)return
+					loans.push(
+						{counterparty:document.getElementById(`data-entry-name`).value
+						,accounts:[]})
+					break
+				case `accounts`:
+					stage=1
+					if(!document.getElementById(`data-entry-name`).value.length)return
+					loans[globalCounterpartyIndex].accounts.push(
+						{title:document.getElementById(`data-entry-name`).value
+						,transfers:[]})
+					break
+				case `transfers`:
+					stage=2
+					if(!document.getElementById(`data-entry-value`).value.length)return
+					if(!document.getElementById(`data-entry-value-date`).value.length)return
+					loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers.push(
+						{date:document.getElementById(`data-entry-value-date`).value.split(`-`)
+						,transfer:parseFloat(document.getElementById(`data-entry-value`).value)})
+					open=1
+					calculateAdditionalInformation(0)
+					open=1
+					calculateAdditionalInformation(1)
+					break
+			}
+			break
+	}
+	closeDataEntry()
 	isMemoryChanged=1
-	calculateAdditionalInformation(stage)
+	calculateAdditionalInformation(stage??``)
 }
 window.onbeforeunload=function(){
 	if(isMemoryChanged)return ``

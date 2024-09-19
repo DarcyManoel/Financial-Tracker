@@ -6,17 +6,17 @@
 		<title>Financial Tracker</title>
 	</head>
 	<body>
-		<div id="landing-modal" class="card modal" style="animation:fadeIn .2s forwards;">
+		<div id="landing-modal" class="card modal" style="animation:fade-in .2s forwards;">
 			<h1>Welcome!</h1>
 			This webpage allows you to track your financial situation, offering a comprehensive view of your income, expenses, and savings. With intuitive tools and real-time insights, you can make informed decisions to stay on top of your finances.
 			<br>
 			<br>
 			To begin, you can close this dialogue or upload a file to resume previously made progress.
 			<h3 style="display:flex;gap:.5rem;justify-content:center;">
-				<div onClick="closeLandingModal()" class="button" style="background-color:lightgray;border-radius:.85rem;font-family:'montserrat-bold';line-height:1rem;padding:.5rem 1rem;width:9rem;">
+				<div onClick="closeLandingModal()" class="button button-close">
 					Close
 				</div>
-				<div class="button" style="background-color:deepskyblue;border-radius:.85rem;font-family:'montserrat-bold';line-height:1rem;padding:.5rem 1rem;width:9rem;">
+				<div class="button button-continue">
 					<label for="file-input">
 						Upload File
 					</label>
@@ -24,7 +24,7 @@
 				</div>
 			</h3>
 			<hr>
-			<div style="padding:0 20%;">
+			<div class="modal-footnotes">
 				psst..
 				<h6>
 					the uploaded file should be a .json file formatted by this site previously.
@@ -32,6 +32,8 @@
 			</div>
 		</div>
 		<div id="content" style="opacity:0;pointer-events:none;">
+			<div id="page-cover" style="height:100vh;left:0;pointer-events:none;position:fixed;top:0;transition:.2s;width:100vw;z-index:2;"></div>
+			<div id="data-entry" class="card modal" style="display:none;"></div>
 			<div id="menubar">
 				<select id="tracking-sections" onChange="changeContent(this.value)" class="button-frame card" style="appearance:none;border:none;">
 					<option>Assets</option>
@@ -46,14 +48,14 @@
 				<div class="card wrapper">
 					<h3 id="assets-liquid-header" class="header">
 						<span>Liquid</span>
-						<span onClick="createAssetsEntry('liquid')" class="button create-entry">+</span>
+						<span onClick="createEntry('assets','liquid')" class="button create-entry">+</span>
 					</h3>
 					<div id="assets-liquid"></div>
 				</div>
 				<div class="card wrapper">
 					<h3 id="assets-illiquid-header" class="header">
 						<span>Illiquid</span>
-						<span onClick="createAssetsEntry('illiquid')" class="button create-entry">+</span>
+						<span onClick="createEntry('assets','illiquid')" class="button create-entry">+</span>
 					</h3>
 					<div id="assets-illiquid"></div>
 				</div>
@@ -68,7 +70,7 @@
 				<div class="card wrapper">
 					<h3 id="loans-counterparties-header" class="header">
 						<span>COUNTERPARTIES</span>
-						<span onClick="createLoanEntry('counterparties')" class="button create-entry">+</span>
+						<span onClick="createEntry('loans','counterparties')" class="button create-entry">+</span>
 					</h3>
 					<div id="loans-counterparties"></div>
 				</div>

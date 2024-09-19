@@ -51,6 +51,22 @@ h1{
 .button:hover{
 	opacity:1;
 }
+.button-close{
+	background-color:lightgray;
+	border-radius:.85rem;
+	font-family:'montserrat-bold';
+	line-height:1rem;
+	padding:.5rem 1rem;
+	width:9rem;
+}
+.button-continue{
+	background-color:deepskyblue;
+	border-radius:.85rem;
+	font-family:'montserrat-bold';
+	line-height:1rem;
+	padding:.5rem 1rem;
+	width:9rem;
+}
 .button-frame{
 	cursor:pointer;
 	color:rgba(0,0,0,.3);
@@ -68,6 +84,36 @@ h1{
 	overflow:hidden;
 	padding:2rem;
 	width:100%;
+}
+.cover{
+	backdrop-filter:blur(2px);
+	background-color:rgba(0,0,0,.4);
+	pointer-events:initial !important;
+}
+input{
+	border:none;
+	cursor:initial;
+	font-size:1.2rem;
+	height:100%;
+	width:100%;
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button{
+	-webkit-appearance: none;
+	margin:0;
+}
+span::before{
+	color:red;
+	content:attr(data-before);
+	font-family:'montserrat-bold';
+	font-size:1.3rem;
+	position:absolute;
+	transform:translate(-1rem);
+}
+#data-entry,
+#data-entry-assets,
+#data-entry-loans{
+	z-index:3;
 }
 #menubar{
 	display:flex;
