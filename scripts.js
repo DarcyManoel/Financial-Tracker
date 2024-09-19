@@ -453,6 +453,7 @@ function submitData(sectionMajor,sectionMinor){
 			if(!document.getElementById(`data-entry-value-date`).value.length)return
 			for(let i1=0;i1<assets[sectionMinor].length;i1++){
 				if(document.getElementById(`data-entry-name`).value==assets[sectionMinor][i1].title){
+					assets[sectionMinor][i1].records=assets[sectionMinor][i1].records.filter(record=>record.date.join(`-`)!=document.getElementById(`data-entry-value-date`).value)
 					assets[sectionMinor][i1].records.push(
 						{date:document.getElementById(`data-entry-value-date`).value.split(`-`)
 						,balance:parseFloat(document.getElementById(`data-entry-value`).value)})
