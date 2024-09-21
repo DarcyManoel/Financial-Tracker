@@ -337,7 +337,7 @@ const INSERTION_TEMPLATE_LOANS={
 		title:`TRANSFER`,
 		fields:`
 			<span id="data-entry-value-wrapper" data-before="!" style="color:initial;">
-				<input id="data-entry-value" type="text" placeholder="Transfer amount..." onKeyUp="testValidity(this.id)"/>
+				<input id="data-entry-value" type="number" placeholder="Transfer amount..." onKeyUp="testValidity(this.id)"/>
 			</span>
 			<span id="data-entry-value-date-wrapper" data-before="!" style="color:initial;">
 				<input id="data-entry-value-date" type="date" onChange="testValidity(this.id)"/>
