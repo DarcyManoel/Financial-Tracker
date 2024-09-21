@@ -21,6 +21,7 @@ function uploadFile(file){
 	}
 }
 function calculateAdditionalInformation(stage){
+	//	assets
 	for(let i1=0;i1<assets.liquid.length;i1++){
 		assets.liquid[i1].period=Math.round((new Date(assets.liquid[i1].records[assets.liquid[i1].records.length-1].date.join(`/`))-new Date(assets.liquid[i1].records[0].date.join(`/`)))/86400000)
 		assets.liquid[i1].records[0].period=0
@@ -41,6 +42,7 @@ function calculateAdditionalInformation(stage){
 		}
 		assets.illiquid[i1].balanceAverage=balanceAverage/assets.illiquid[i1].records.length
 	}
+	//	loans
 	for(let i1=0;i1<loans.length;i1++){
 		let accountsSum=0
 		for(let i2=0;i2<loans[i1].accounts.length;i2++){
@@ -72,6 +74,7 @@ function calculateAdditionalInformation(stage){
 		}
 		loans[i1].accountsSum=parseFloat(accountsSum)
 	}
+	//
 	sortArrays(stage)
 }
 function calculateInterest(balance,interestRate,days){
@@ -84,16 +87,20 @@ function calculateInterest(balance,interestRate,days){
 	return interestAccrued
 }
 function sortArrays(stage){
-	loans=loans.sort(function(a,b){return a.accountsSum-b.accountsSum})
-	for(let i1=0;i1<loans.length;i1++){
-		loans[i1].accounts=loans[i1].accounts.sort(function(a,b){return a.transfersSum-b.transfersSum})
-	}
-	for(let i1=0;i1<assets.liquid.length;i1++){
+	//	assets
+	for(let i1=0;i1<assets.liquid.length;i1++)
 		assets.liquid[i1].records=assets.liquid[i1].records.sort(function(a,b){return a.date.join(``)-b.date.join(``)})
-	}
-	for(let i1=0;i1<assets.illiquid.length;i1++){
+	for(let i1=0;i1<assets.illiquid.length;i1++)
 		assets.illiquid[i1].records=assets.illiquid[i1].records.sort(function(a,b){return a.date.join(``)-b.date.join(``)})
-	}
+	//	loans
+	const GLOBAL_COUNTERPARTY_NAME=loans[globalCounterpartyIndex].counterparty
+	const GLOBAL_ACCOUNT_TITLE=loans[globalCounterpartyIndex].accounts[globalAccountIndex].title
+	loans=loans.sort(function(a,b){return a.accountsSum-b.accountsSum})
+	for(let i1=0;i1<loans.length;i1++)
+		loans[i1].accounts=loans[i1].accounts.sort(function(a,b){return a.transfersSum-b.transfersSum})
+	globalCounterpartyIndex=loans.findIndex(counterparties=>counterparties.counterparty===GLOBAL_COUNTERPARTY_NAME)
+	globalAccountIndex=loans[globalCounterpartyIndex].accounts.findIndex(accounts=>accounts.title===GLOBAL_ACCOUNT_TITLE)
+	//
 	renderMenu(stage)
 }
 function renderMenu(stage){
@@ -229,6 +236,7 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 	if(isOpen){
 		stage--
 	}
+	//	counterparties
 	if(!stage){
 		for(let i1=0;i1<loans.length;i1++){
 			const COLOUR=loans[i1].accountsSum>=0
@@ -253,6 +261,7 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 		document.getElementById(`loans-transfers-header`).innerHTML=`
 			<span>TRANSFERS</span>`
 	}
+	//	accounts
 	if(stage==1){
 		document.getElementById(`loans-accounts-header`).innerHTML=`
 			<span>ACCOUNTS</span>
@@ -279,6 +288,7 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 		document.getElementById(`loans-transfers`).innerHTML=``
 		document.getElementById(`loans-transfers-header`).innerHTML=`
 			<span>TRANSFERS</span>`
+	//	transfers
 	}else if(stage==2){
 		document.getElementById(`loans-transfers-header`).innerHTML=`
 			<span>TRANSFERS</span>
@@ -307,6 +317,7 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 		}
 		document.getElementById(`loans-transfers`).innerHTML=contentQueue
 	}
+	//
 	open=0
 }
 function changeContent(value){
