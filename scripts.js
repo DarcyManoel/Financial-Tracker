@@ -183,7 +183,7 @@ function renderFinancialHoldings(){
 		for(let i1=0;i1<loans.length;i1++){
 			loansTotal+=loans[i1].sumOfAccounts
 		}
-		const ACCOUNT_BALANCE=loansTotal<0
+		const ACCOUNT_BALANCE=loansTotal<=0
 			?`$${numberWithCommas(Math.abs(loansTotal).toFixed(2))}`
 			:`<span style="color:red;">-$${numberWithCommas(Math.abs(loansTotal).toFixed(2))}</span>`
 		contentQueue+=`
