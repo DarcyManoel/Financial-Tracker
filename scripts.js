@@ -2,7 +2,7 @@ function closeLandingModal(){
 	document.getElementById(`landing-modal`).style=`animation:fade-out .2s forwards;`
 	document.getElementById(`content`).style=`animation:fade-in .2s;`
 }
-let assets={liquid:[],illiquid:[]}
+let financialHoldings={liquid:[],illiquid:[]}
 let loans=[]
 function uploadFile(file){
 	closeLandingModal()
@@ -12,7 +12,7 @@ function uploadFile(file){
 	fileReader.onload=function(e){
 		try{
 			const data=JSON.parse(e.target.result)
-			if(data.assets.illiquid.length&&data.assets.liquid.length)assets=data.assets
+			if(data.financialHoldings.illiquid.length&&data.financialHoldings.liquid.length)financialHoldings=data.financialHoldings
 			if(data.loans.length)loans=data.loans
 			calculateAdditionalInformation()
 		}catch(error){
@@ -21,26 +21,26 @@ function uploadFile(file){
 	}
 }
 function calculateAdditionalInformation(stage){
-	//	assets
-	for(let i1=0;i1<assets.liquid.length;i1++){
-		assets.liquid[i1].daysSinceLastTransfer=Math.round((new Date(assets.liquid[i1].records[assets.liquid[i1].records.length-1].date.join(`/`))-new Date(assets.liquid[i1].records[0].date.join(`/`)))/86400000)
-		assets.liquid[i1].records[0].daysSinceLastTransfer=0
-		let balanceAverage=assets.liquid[i1].records[0].balance
-		for(let i2=1;i2<assets.liquid[i1].records.length;i2++){
-			assets.liquid[i1].records[i2].daysSinceLastTransfer=Math.round((new Date(assets.liquid[i1].records[i2].date.join(`/`))-new Date(assets.liquid[i1].records[i2-1].date.join(`/`)))/86400000)
-			balanceAverage+=assets.liquid[i1].records[i2].balance
+	//	financial holdings
+	for(let i1=0;i1<financialHoldings.liquid.length;i1++){
+		financialHoldings.liquid[i1].daysSinceLastTransfer=Math.round((new Date(financialHoldings.liquid[i1].records[financialHoldings.liquid[i1].records.length-1].date.join(`/`))-new Date(financialHoldings.liquid[i1].records[0].date.join(`/`)))/86400000)
+		financialHoldings.liquid[i1].records[0].daysSinceLastTransfer=0
+		let balanceAverage=financialHoldings.liquid[i1].records[0].balance
+		for(let i2=1;i2<financialHoldings.liquid[i1].records.length;i2++){
+			financialHoldings.liquid[i1].records[i2].daysSinceLastTransfer=Math.round((new Date(financialHoldings.liquid[i1].records[i2].date.join(`/`))-new Date(financialHoldings.liquid[i1].records[i2-1].date.join(`/`)))/86400000)
+			balanceAverage+=financialHoldings.liquid[i1].records[i2].balance
 		}
-		assets.liquid[i1].balanceAverage=balanceAverage/assets.liquid[i1].records.length
+		financialHoldings.liquid[i1].balanceAverage=balanceAverage/financialHoldings.liquid[i1].records.length
 	}
-	for(let i1=0;i1<assets.illiquid.length;i1++){
-		assets.illiquid[i1].daysSinceLastTransfer=Math.round((new Date(assets.illiquid[i1].records[assets.illiquid[i1].records.length-1].date.join(`/`))-new Date(assets.illiquid[i1].records[0].date.join(`/`)))/86400000)
-		assets.illiquid[i1].records[0].daysSinceLastTransfer=0
-		let balanceAverage=assets.illiquid[i1].records[0].balance
-		for(let i2=1;i2<assets.illiquid[i1].records.length;i2++){
-			assets.illiquid[i1].records[i2].daysSinceLastTransfer=Math.round((new Date(assets.illiquid[i1].records[i2].date.join(`/`))-new Date(assets.illiquid[i1].records[i2-1].date.join(`/`)))/86400000)
-			balanceAverage+=assets.illiquid[i1].records[i2].balance
+	for(let i1=0;i1<financialHoldings.illiquid.length;i1++){
+		financialHoldings.illiquid[i1].daysSinceLastTransfer=Math.round((new Date(financialHoldings.illiquid[i1].records[financialHoldings.illiquid[i1].records.length-1].date.join(`/`))-new Date(financialHoldings.illiquid[i1].records[0].date.join(`/`)))/86400000)
+		financialHoldings.illiquid[i1].records[0].daysSinceLastTransfer=0
+		let balanceAverage=financialHoldings.illiquid[i1].records[0].balance
+		for(let i2=1;i2<financialHoldings.illiquid[i1].records.length;i2++){
+			financialHoldings.illiquid[i1].records[i2].daysSinceLastTransfer=Math.round((new Date(financialHoldings.illiquid[i1].records[i2].date.join(`/`))-new Date(financialHoldings.illiquid[i1].records[i2-1].date.join(`/`)))/86400000)
+			balanceAverage+=financialHoldings.illiquid[i1].records[i2].balance
 		}
-		assets.illiquid[i1].balanceAverage=balanceAverage/assets.illiquid[i1].records.length
+		financialHoldings.illiquid[i1].balanceAverage=balanceAverage/financialHoldings.illiquid[i1].records.length
 	}
 	//	loans
 	for(let i1=0;i1<loans.length;i1++){
@@ -87,11 +87,11 @@ function calculateInterest(balance,interestRate,days){
 	return interestAccrued
 }
 function sortArrays(stage){
-	//	assets
-	for(let i1=0;i1<assets.liquid.length;i1++)
-		assets.liquid[i1].records=assets.liquid[i1].records.sort(function(a,b){return a.date.join(``)-b.date.join(``)})
-	for(let i1=0;i1<assets.illiquid.length;i1++)
-		assets.illiquid[i1].records=assets.illiquid[i1].records.sort(function(a,b){return a.date.join(``)-b.date.join(``)})
+	//	financial holdings
+	for(let i1=0;i1<financialHoldings.liquid.length;i1++)
+		financialHoldings.liquid[i1].records=financialHoldings.liquid[i1].records.sort(function(a,b){return a.date.join(``)-b.date.join(``)})
+	for(let i1=0;i1<financialHoldings.illiquid.length;i1++)
+		financialHoldings.illiquid[i1].records=financialHoldings.illiquid[i1].records.sort(function(a,b){return a.date.join(``)-b.date.join(``)})
 	//	loans
 	const GLOBAL_COUNTERPARTY_NAME=loans[globalCounterpartyIndex].counterparty
 	const GLOBAL_ACCOUNT_TITLE=loans[globalCounterpartyIndex].accounts[globalAccountIndex].account
@@ -104,21 +104,21 @@ function sortArrays(stage){
 	renderMenu(stage)
 }
 function renderMenu(stage){
-	if(assets.liquid.length||assets.illiquid.length||loans.length){
-		renderAssets()
+	if(financialHoldings.liquid.length||financialHoldings.illiquid.length||loans.length){
+		renderFinancialHoldings()
 		renderLoans(``,stage??0)
 	}
 }
-function renderAssets(){
+function renderFinancialHoldings(){
 	const DATE_TODAY=new Date(`${new Date().getFullYear()}/${new Date().getMonth()+1}/${new Date().getDate()}`)
 	let contentQueue=``
-	for(let i1=0;i1<assets.liquid.length;i1++){
-		const ACCOUNT_RECORDS=assets.liquid[i1].records
+	for(let i1=0;i1<financialHoldings.liquid.length;i1++){
+		const ACCOUNT_RECORDS=financialHoldings.liquid[i1].records
 		const DAYS_SINCE_UPDATE=(DATE_TODAY-new Date(ACCOUNT_RECORDS[ACCOUNT_RECORDS.length-1].date.join(`/`)))/86400000
 		const COLOUR=DAYS_SINCE_UPDATE>0
 			?`red`
 			:`green`
-		const ACCOUNT_TITLE=assets.liquid[i1].account
+		const ACCOUNT_TITLE=financialHoldings.liquid[i1].account
 		const ACCOUNT_BALANCE=numberWithCommas(ACCOUNT_RECORDS[ACCOUNT_RECORDS.length-1].balance)
 		const LAST_UPDATED=DAYS_SINCE_UPDATE>0
 			?`${DAYS_SINCE_UPDATE>1
@@ -126,7 +126,7 @@ function renderAssets(){
 				:`yesterday`}`
 			:`today`
 		contentQueue+=`
-			<details name="assets" style="color:${COLOUR};">
+			<details name="financialHoldings" style="color:${COLOUR};">
 				<summary>
 					<span>${ACCOUNT_TITLE}</span>
 				</summary>
@@ -138,18 +138,18 @@ function renderAssets(){
 				${LAST_UPDATED}
 			</details>`
 	}
-	document.getElementById(`assets-liquid`).innerHTML=contentQueue
-	for(let i1=0;i1<assets.liquid.length;i1++){
-		drawSparkline(`sparkline${assets.liquid[i1].account}`,assets.liquid[i1].records,assets.liquid[i1].daysSinceLastTransfer,assets.liquid[i1].balanceAverage)
+	document.getElementById(`financial-holdings-liquid`).innerHTML=contentQueue
+	for(let i1=0;i1<financialHoldings.liquid.length;i1++){
+		drawSparkline(`sparkline${financialHoldings.liquid[i1].account}`,financialHoldings.liquid[i1].records,financialHoldings.liquid[i1].daysSinceLastTransfer,financialHoldings.liquid[i1].balanceAverage)
 	}
 	contentQueue=``
-	for(let i1=0;i1<assets.illiquid.length;i1++){
-		const ACCOUNT_RECORDS=assets.illiquid[i1].records
+	for(let i1=0;i1<financialHoldings.illiquid.length;i1++){
+		const ACCOUNT_RECORDS=financialHoldings.illiquid[i1].records
 		const DAYS_SINCE_UPDATE=(DATE_TODAY-new Date(ACCOUNT_RECORDS[ACCOUNT_RECORDS.length-1].date.join(`/`)))/86400000
 		const COLOUR=DAYS_SINCE_UPDATE>0
 			?`red`
 			:`green`
-		const ACCOUNT_TITLE=assets.illiquid[i1].account
+		const ACCOUNT_TITLE=financialHoldings.illiquid[i1].account
 		const ACCOUNT_BALANCE=numberWithCommas(ACCOUNT_RECORDS[ACCOUNT_RECORDS.length-1].balance)
 		const LAST_UPDATED=DAYS_SINCE_UPDATE>0
 			?`${DAYS_SINCE_UPDATE>1
@@ -157,7 +157,7 @@ function renderAssets(){
 				:`yesterday`}`
 			:`today`
 		contentQueue+=`
-			<details name="assets" style="color:${COLOUR};">
+			<details name="financialHoldings" style="color:${COLOUR};">
 				<summary>
 					<span>${ACCOUNT_TITLE}</span>
 				</summary>
@@ -169,9 +169,9 @@ function renderAssets(){
 				${LAST_UPDATED}
 			</details>`
 	}
-	document.getElementById(`assets-illiquid`).innerHTML=contentQueue
-	for(let i1=0;i1<assets.illiquid.length;i1++){
-		drawSparkline(`sparkline${assets.illiquid[i1].account}`,assets.illiquid[i1].records,assets.illiquid[i1].daysSinceLastTransfer,assets.illiquid[i1].balanceAverage)
+	document.getElementById(`financial-holdings-illiquid`).innerHTML=contentQueue
+	for(let i1=0;i1<financialHoldings.illiquid.length;i1++){
+		drawSparkline(`sparkline${financialHoldings.illiquid[i1].account}`,financialHoldings.illiquid[i1].records,financialHoldings.illiquid[i1].daysSinceLastTransfer,financialHoldings.illiquid[i1].balanceAverage)
 	}
 	contentQueue=``
 	if(loans.length){
@@ -183,7 +183,7 @@ function renderAssets(){
 			?`$${numberWithCommas(Math.abs(loansTotal).toFixed(2))}`
 			:`<span style="color:red;">-$${numberWithCommas(Math.abs(loansTotal).toFixed(2))}</span>`
 		contentQueue+=`
-			<details name="assets" style="color:green;">
+			<details name="financialHoldings" style="color:green;">
 				<summary>
 					<span>Loans</span>
 				</summary>
@@ -192,7 +192,7 @@ function renderAssets(){
 				<span>updated</span> automatically
 			</details>`
 	}
-	document.getElementById(`assets-intangible`).innerHTML=contentQueue
+	document.getElementById(`financial-holdings-intangible`).innerHTML=contentQueue
 }
 function drawSparkline(canvasId,dataPoints,daysSinceLastTransfer,balanceAverage){
 	let canvas=document.getElementById(canvasId)
@@ -343,7 +343,7 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 }
 function changeContent(value){
 	const OPTIONS=document.getElementById(`tracking-sections`).options
-	for(let i1=0;i1<OPTIONS.length;i1++)document.getElementById(`content-${OPTIONS[i1].text.toLowerCase()}`).style=`display:none;`
+	for(let i1=0;i1<OPTIONS.length;i1++)document.getElementById(`content-${OPTIONS[i1].text.toLowerCase().replace(/ /g,`-`)}`).style=`display:none;`
 	document.getElementById(`content-${value.toLowerCase()}`).style=``
 }
 function numberWithCommas(x) {
@@ -351,13 +351,13 @@ function numberWithCommas(x) {
 }
 const INSERTION_TEMPLATE_LOANS={
 	counterparties:{
-		title:`COUNTERPARTY`,
+		section:`COUNTERPARTY`,
 		fields:`
 			<span id="data-entry-name-wrapper" data-before="!" style="color:initial;">
 				<input id="data-entry-name" type="text" placeholder="Counterparty name..." onKeyUp="testValidity(this.id)"/>
 			</span>`},
 	accounts:{
-		title:`ACCOUNT`,
+		section:`ACCOUNT`,
 		fields:`
 			<span id="data-entry-name-wrapper" data-before="!" style="color:initial;">
 				<input id="data-entry-name" type="text" placeholder="Account name..." onKeyUp="testValidity(this.id)"/>
@@ -366,7 +366,7 @@ const INSERTION_TEMPLATE_LOANS={
 				<input id="data-entry-interest" type="number" placeholder="Interest rate..." onKeyUp="testValidity(this.id)"/>
 			</span>`},
 	transfers:{
-		title:`TRANSFER`,
+		section:`TRANSFER`,
 		fields:`
 			<span id="data-entry-value-wrapper" data-before="!" style="color:initial;">
 				<input id="data-entry-value" type="number" placeholder="Transfer amount..." onKeyUp="testValidity(this.id)"/>
@@ -380,7 +380,7 @@ function createEntry(sectionMajor,sectionMinor,counterpartyIndex,accountIndex){
 	document.getElementById(`page-cover`).classList.add(`cover`)
 	document.getElementById(`data-entry`).style=`animation:fade-in .2s forwards;`
 	switch(sectionMajor){
-		case `assets`:
+		case `financialHoldings`:
 			document.getElementById(`data-entry`).innerHTML=`
 				<h3 style="font-family:'montserrat-bold';">UPDATE ACCOUNT</h3>
 				<div style="display:flex;flex-direction:column;">
@@ -411,7 +411,7 @@ function createEntry(sectionMajor,sectionMinor,counterpartyIndex,accountIndex){
 			break
 		case `loans`:
 			document.getElementById(`data-entry`).innerHTML=`
-				<h3 style="font-family:'montserrat-bold';">NEW ${INSERTION_TEMPLATE_LOANS[sectionMinor].account}</h3>
+				<h3 style="font-family:'montserrat-bold';">NEW ${INSERTION_TEMPLATE_LOANS[sectionMinor].section}</h3>
 				<div style="display:flex;flex-direction:column;">
 					${INSERTION_TEMPLATE_LOANS[sectionMinor].fields}
 				</div>
@@ -439,14 +439,14 @@ function closeDataEntry(){
 function submitData(sectionMajor,sectionMinor){
 	let stage
 	switch(sectionMajor){
-		case `assets`:
+		case `financialHoldings`:
 			if(!document.getElementById(`data-entry-name`).value.length)return
 			if(!document.getElementById(`data-entry-value`).value.length)return
 			if(!document.getElementById(`data-entry-value-date`).value.length)return
-			for(let i1=0;i1<assets[sectionMinor].length;i1++){
-				if(document.getElementById(`data-entry-name`).value==assets[sectionMinor][i1].account){
-					assets[sectionMinor][i1].records=assets[sectionMinor][i1].records.filter(record=>record.date.join(`-`)!=document.getElementById(`data-entry-value-date`).value)
-					assets[sectionMinor][i1].records.push(
+			for(let i1=0;i1<financialHoldings[sectionMinor].length;i1++){
+				if(document.getElementById(`data-entry-name`).value==financialHoldings[sectionMinor][i1].account){
+					financialHoldings[sectionMinor][i1].records=financialHoldings[sectionMinor][i1].records.filter(record=>record.date.join(`-`)!=document.getElementById(`data-entry-value-date`).value)
+					financialHoldings[sectionMinor][i1].records.push(
 						{date:document.getElementById(`data-entry-value-date`).value.split(`-`)
 						,balance:parseFloat(document.getElementById(`data-entry-value`).value)})
 					closeDataEntry()
@@ -455,8 +455,8 @@ function submitData(sectionMajor,sectionMinor){
 					return
 				}
 			}
-			assets[sectionMinor==`liquid`?`liquid`:`illiquid`].push(
-				{title:document.getElementById(`data-entry-name`).value
+			financialHoldings[sectionMinor==`liquid`?`liquid`:`illiquid`].push(
+				{account:document.getElementById(`data-entry-name`).value
 				,records:[
 					{date:document.getElementById(`data-entry-value-date`).value.split(`-`)
 					,balance:parseFloat(document.getElementById(`data-entry-value`).value)}]})
@@ -477,7 +477,7 @@ function submitData(sectionMajor,sectionMinor){
 						return
 					}
 					loans[globalCounterpartyIndex].accounts.push(
-						{title:document.getElementById(`data-entry-name`).value
+						{account:document.getElementById(`data-entry-name`).value
 						,interestRate:document.getElementById(`data-entry-interest`).value/100
 						,transfers:[]})
 					break
@@ -544,11 +544,11 @@ function replacer(key,value){
 	return value
 }
 function downloadMemory(){
-	if(!(loans.length+assets.liquid.length+assets.illiquid.length)){
+	if(!(loans.length+financialHoldings.liquid.length+financialHoldings.illiquid.length)){
 		alert(`There is no data to save.`)
 		return
 	}
-	const data={assets:assets,loans:loans}
+	const data={financialHoldings:financialHoldings,loans:loans}
 	const arrayedDate=new Date().toISOString().split(`T`)[0].split(`-`)
 	const filename=`financials (${arrayedDate[2]}${dateToOrdinalSuffix(arrayedDate[2])} ${monthToMonthName[parseInt(arrayedDate[1])-1]} ${arrayedDate[0]} UTC).json`
 	const content=`${JSON.stringify(data,replacer)}`

@@ -137,7 +137,7 @@ span::before{
 #memory-management *{
 	padding:.5rem 1rem;
 }
-#content-assets,
+#content-financial-holdings,
 #content-loans{
 	display:flex;
 	gap:1rem;
