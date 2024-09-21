@@ -23,56 +23,56 @@ function uploadFile(file){
 function calculateAdditionalInformation(stage){
 	//	assets
 	for(let i1=0;i1<assets.liquid.length;i1++){
-		assets.liquid[i1].period=Math.round((new Date(assets.liquid[i1].records[assets.liquid[i1].records.length-1].date.join(`/`))-new Date(assets.liquid[i1].records[0].date.join(`/`)))/86400000)
-		assets.liquid[i1].records[0].period=0
+		assets.liquid[i1].daysSinceLastTransfer=Math.round((new Date(assets.liquid[i1].records[assets.liquid[i1].records.length-1].date.join(`/`))-new Date(assets.liquid[i1].records[0].date.join(`/`)))/86400000)
+		assets.liquid[i1].records[0].daysSinceLastTransfer=0
 		let balanceAverage=assets.liquid[i1].records[0].balance
 		for(let i2=1;i2<assets.liquid[i1].records.length;i2++){
-			assets.liquid[i1].records[i2].period=Math.round((new Date(assets.liquid[i1].records[i2].date.join(`/`))-new Date(assets.liquid[i1].records[i2-1].date.join(`/`)))/86400000)
+			assets.liquid[i1].records[i2].daysSinceLastTransfer=Math.round((new Date(assets.liquid[i1].records[i2].date.join(`/`))-new Date(assets.liquid[i1].records[i2-1].date.join(`/`)))/86400000)
 			balanceAverage+=assets.liquid[i1].records[i2].balance
 		}
 		assets.liquid[i1].balanceAverage=balanceAverage/assets.liquid[i1].records.length
 	}
 	for(let i1=0;i1<assets.illiquid.length;i1++){
-		assets.illiquid[i1].period=Math.round((new Date(assets.illiquid[i1].records[assets.illiquid[i1].records.length-1].date.join(`/`))-new Date(assets.illiquid[i1].records[0].date.join(`/`)))/86400000)
-		assets.illiquid[i1].records[0].period=0
+		assets.illiquid[i1].daysSinceLastTransfer=Math.round((new Date(assets.illiquid[i1].records[assets.illiquid[i1].records.length-1].date.join(`/`))-new Date(assets.illiquid[i1].records[0].date.join(`/`)))/86400000)
+		assets.illiquid[i1].records[0].daysSinceLastTransfer=0
 		let balanceAverage=assets.illiquid[i1].records[0].balance
 		for(let i2=1;i2<assets.illiquid[i1].records.length;i2++){
-			assets.illiquid[i1].records[i2].period=Math.round((new Date(assets.illiquid[i1].records[i2].date.join(`/`))-new Date(assets.illiquid[i1].records[i2-1].date.join(`/`)))/86400000)
+			assets.illiquid[i1].records[i2].daysSinceLastTransfer=Math.round((new Date(assets.illiquid[i1].records[i2].date.join(`/`))-new Date(assets.illiquid[i1].records[i2-1].date.join(`/`)))/86400000)
 			balanceAverage+=assets.illiquid[i1].records[i2].balance
 		}
 		assets.illiquid[i1].balanceAverage=balanceAverage/assets.illiquid[i1].records.length
 	}
 	//	loans
 	for(let i1=0;i1<loans.length;i1++){
-		let accountsSum=0
+		let sumOfAccounts=0
 		for(let i2=0;i2<loans[i1].accounts.length;i2++){
-			let transfersSum=0
-			let interestSum=0
+			let sumOfTransfers=0
+			let sumOfInterest=0
 			for(let i3=0;i3<loans[i1].accounts[i2].transfers.length;i3++){
 				loans[i1].accounts[i2].transfers[i3].date[1]=String(loans[i1].accounts[i2].transfers[i3].date[1]).padStart(2,`0`)
 				loans[i1].accounts[i2].transfers[i3].date[2]=String(loans[i1].accounts[i2].transfers[i3].date[2]).padStart(2,`0`)
 				if(i3>0){
-					loans[i1].accounts[i2].transfers[i3].period=Math.round((new Date(loans[i1].accounts[i2].transfers[i3].date.join(`/`))-new Date(loans[i1].accounts[i2].transfers[i3-1].date.join(`/`)))/86400000)
+					loans[i1].accounts[i2].transfers[i3].daysSinceLastTransfer=Math.round((new Date(loans[i1].accounts[i2].transfers[i3].date.join(`/`))-new Date(loans[i1].accounts[i2].transfers[i3-1].date.join(`/`)))/86400000)
 					if(loans[i1].accounts[i2].interestRate){
-						interestSum+=loans[i1].accounts[i2].transfers[i3].interest=calculateInterest(
-							(transfersSum-interestSum)*-1
+						sumOfInterest+=loans[i1].accounts[i2].transfers[i3].interest=calculateInterest(
+							(sumOfTransfers-sumOfInterest)*-1
 							,loans[i1].accounts[i2].interestRate
-							,loans[i1].accounts[i2].transfers[i3].period)
+							,loans[i1].accounts[i2].transfers[i3].daysSinceLastTransfer)
 					}
 				}
-				transfersSum+=loans[i1].accounts[i2].transfers[i3].transfer
+				sumOfTransfers+=loans[i1].accounts[i2].transfers[i3].transfer
 			}
 			if(loans[i1].accounts[i2].interestRate&&loans[i1].accounts[i2].transfers.length){
-				interestSum+=calculateInterest(
-					(transfersSum-interestSum)*-1
+				sumOfInterest+=calculateInterest(
+					(sumOfTransfers-sumOfInterest)*-1
 					,loans[i1].accounts[i2].interestRate
 					,Math.round((new Date()-new Date(loans[i1].accounts[i2].transfers[loans[i1].accounts[i2].transfers.length-1].date.join(`/`)))/86400000))
 			}
-			loans[i1].accounts[i2].transfersSum=parseFloat(transfersSum)
-			loans[i1].accounts[i2].interestSum=parseFloat(interestSum)
-			accountsSum+=transfersSum-interestSum
+			loans[i1].accounts[i2].sumOfTransfers=parseFloat(sumOfTransfers)
+			loans[i1].accounts[i2].sumOfInterest=parseFloat(sumOfInterest)
+			sumOfAccounts+=sumOfTransfers-sumOfInterest
 		}
-		loans[i1].accountsSum=parseFloat(accountsSum)
+		loans[i1].sumOfAccounts=parseFloat(sumOfAccounts)
 	}
 	//
 	sortArrays(stage)
@@ -94,12 +94,12 @@ function sortArrays(stage){
 		assets.illiquid[i1].records=assets.illiquid[i1].records.sort(function(a,b){return a.date.join(``)-b.date.join(``)})
 	//	loans
 	const GLOBAL_COUNTERPARTY_NAME=loans[globalCounterpartyIndex].counterparty
-	const GLOBAL_ACCOUNT_TITLE=loans[globalCounterpartyIndex].accounts[globalAccountIndex].title
-	loans=loans.sort(function(a,b){return a.accountsSum-b.accountsSum})
+	const GLOBAL_ACCOUNT_TITLE=loans[globalCounterpartyIndex].accounts[globalAccountIndex].account
+	loans=loans.sort(function(a,b){return a.sumOfAccounts-b.sumOfAccounts})
 	for(let i1=0;i1<loans.length;i1++)
-		loans[i1].accounts=loans[i1].accounts.sort(function(a,b){return a.transfersSum-b.transfersSum})
+		loans[i1].accounts=loans[i1].accounts.sort(function(a,b){return a.sumOfTransfers-b.sumOfTransfers})
 	globalCounterpartyIndex=loans.findIndex(counterparties=>counterparties.counterparty===GLOBAL_COUNTERPARTY_NAME)
-	globalAccountIndex=loans[globalCounterpartyIndex].accounts.findIndex(accounts=>accounts.title===GLOBAL_ACCOUNT_TITLE)
+	globalAccountIndex=loans[globalCounterpartyIndex].accounts.findIndex(accounts=>accounts.account===GLOBAL_ACCOUNT_TITLE)
 	//
 	renderMenu(stage)
 }
@@ -118,7 +118,7 @@ function renderAssets(){
 		const COLOUR=DAYS_SINCE_UPDATE>0
 			?`red`
 			:`green`
-		const ACCOUNT_TITLE=assets.liquid[i1].title
+		const ACCOUNT_TITLE=assets.liquid[i1].account
 		const ACCOUNT_BALANCE=numberWithCommas(ACCOUNT_RECORDS[ACCOUNT_RECORDS.length-1].balance)
 		const LAST_UPDATED=DAYS_SINCE_UPDATE>0
 			?`${DAYS_SINCE_UPDATE>1
@@ -140,7 +140,7 @@ function renderAssets(){
 	}
 	document.getElementById(`assets-liquid`).innerHTML=contentQueue
 	for(let i1=0;i1<assets.liquid.length;i1++){
-		drawSparkline(`sparkline${assets.liquid[i1].title}`,assets.liquid[i1].records,assets.liquid[i1].period,assets.liquid[i1].balanceAverage)
+		drawSparkline(`sparkline${assets.liquid[i1].account}`,assets.liquid[i1].records,assets.liquid[i1].daysSinceLastTransfer,assets.liquid[i1].balanceAverage)
 	}
 	contentQueue=``
 	for(let i1=0;i1<assets.illiquid.length;i1++){
@@ -149,7 +149,7 @@ function renderAssets(){
 		const COLOUR=DAYS_SINCE_UPDATE>0
 			?`red`
 			:`green`
-		const ACCOUNT_TITLE=assets.illiquid[i1].title
+		const ACCOUNT_TITLE=assets.illiquid[i1].account
 		const ACCOUNT_BALANCE=numberWithCommas(ACCOUNT_RECORDS[ACCOUNT_RECORDS.length-1].balance)
 		const LAST_UPDATED=DAYS_SINCE_UPDATE>0
 			?`${DAYS_SINCE_UPDATE>1
@@ -171,13 +171,13 @@ function renderAssets(){
 	}
 	document.getElementById(`assets-illiquid`).innerHTML=contentQueue
 	for(let i1=0;i1<assets.illiquid.length;i1++){
-		drawSparkline(`sparkline${assets.illiquid[i1].title}`,assets.illiquid[i1].records,assets.illiquid[i1].period,assets.illiquid[i1].balanceAverage)
+		drawSparkline(`sparkline${assets.illiquid[i1].account}`,assets.illiquid[i1].records,assets.illiquid[i1].daysSinceLastTransfer,assets.illiquid[i1].balanceAverage)
 	}
 	contentQueue=``
 	if(loans.length){
 		let loansTotal=0
 		for(let i1=0;i1<loans.length;i1++){
-			loansTotal+=loans[i1].accountsSum
+			loansTotal+=loans[i1].sumOfAccounts
 		}
 		const ACCOUNT_BALANCE=loansTotal<0
 			?`$${numberWithCommas(Math.abs(loansTotal).toFixed(2))}`
@@ -194,7 +194,7 @@ function renderAssets(){
 	}
 	document.getElementById(`assets-intangible`).innerHTML=contentQueue
 }
-function drawSparkline(canvasId,dataPoints,period,balanceAverage){
+function drawSparkline(canvasId,dataPoints,daysSinceLastTransfer,balanceAverage){
 	let canvas=document.getElementById(canvasId)
 	let canvasContext=canvas.getContext(`2d`)
 	canvasContext.clearRect(0,0,canvas.width,canvas.height)
@@ -209,13 +209,13 @@ function drawSparkline(canvasId,dataPoints,period,balanceAverage){
 			:current
 	})
 	const yScale=(canvas.height-2)/(maxValue.balance-minValue.balance)
-	const xScale=(canvas.width-2)/(period)
+	const xScale=(canvas.width-2)/(daysSinceLastTransfer)
 	canvasContext.beginPath()
 	canvasContext.moveTo(1,canvas.height-(dataPoints[0].balance-minValue.balance)*yScale)
-	let periodAccrued=0
+	let daysSinceLastTransferAccrued=0
 	for(let i1=1;i1<dataPoints.length;i1++){
-		periodAccrued+=dataPoints[i1].period
-		const X=periodAccrued*xScale+1
+		daysSinceLastTransferAccrued+=dataPoints[i1].daysSinceLastTransfer
+		const X=daysSinceLastTransferAccrued*xScale+1
 		const Y=canvas.height-(dataPoints[i1].balance-minValue.balance)*yScale
 		canvasContext.lineTo(X,Y)
 	}
@@ -251,13 +251,13 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 		}
 		for(let i1=0;i1<loans.length;i1++){
 			const FUNCTION_ON_CLICK=`renderLoans(this.open,1,${i1})`
-			const COLOUR=loans[i1].accountsSum>=0
+			const COLOUR=loans[i1].sumOfAccounts>=0
 				?`green`
 				:`red`
-			const REMAINING_BALANCE_INDICATION=loans[i1].accountsSum>=0
+			const REMAINING_BALANCE_INDICATION=loans[i1].sumOfAccounts>=0
 				?`<span>surplus</span><br>`
 				:`<span>outstanding</span><br>`
-			const REMAINING_BALANCE=`$${numberWithCommas(Math.abs(loans[i1].accountsSum).toFixed(2))} ${REMAINING_BALANCE_INDICATION}`
+			const REMAINING_BALANCE=`$${numberWithCommas(Math.abs(loans[i1].sumOfAccounts).toFixed(2))} ${REMAINING_BALANCE_INDICATION}`
 			contentQueue+=`
 				<details onClick="${FUNCTION_ON_CLICK}" name="counterparty" ${OPEN_IF_SELECTED_COUNTERPARTY(i1)} style="color:${COLOUR};">
 					<summary>
@@ -286,20 +286,20 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 		}
 		for(let i1=0;i1<loans[globalCounterpartyIndex].accounts.length;i1++){
 			const FUNCTION_ON_CLICK=`renderLoans(this.open,2,${globalCounterpartyIndex},${i1})`
-			const COLOUR=loans[globalCounterpartyIndex].accounts[i1].transfersSum>=0
+			const COLOUR=loans[globalCounterpartyIndex].accounts[i1].sumOfTransfers>=0
 				?`green`
 				:`red`
 			const INTEREST_RATE=loans[globalCounterpartyIndex].accounts[i1].interestRate
 				?`${loans[globalCounterpartyIndex].accounts[i1].interestRate*100}% <span>interest per annum</span><br>`
 				:``
-			const REMAINING_BALANCE_INDICATION=(loans[globalCounterpartyIndex].accounts[i1].transfersSum-loans[globalCounterpartyIndex].accounts[i1].interestSum)>=0
+			const REMAINING_BALANCE_INDICATION=(loans[globalCounterpartyIndex].accounts[i1].sumOfTransfers-loans[globalCounterpartyIndex].accounts[i1].sumOfInterest)>=0
 				?`<span>surplus</span><br>`
 				:`<span>outstanding</span><br>`
-			const REMAINING_BALANCE=`$${numberWithCommas(Math.abs(loans[globalCounterpartyIndex].accounts[i1].transfersSum-loans[globalCounterpartyIndex].accounts[i1].interestSum).toFixed(2))} ${REMAINING_BALANCE_INDICATION}`
+			const REMAINING_BALANCE=`$${numberWithCommas(Math.abs(loans[globalCounterpartyIndex].accounts[i1].sumOfTransfers-loans[globalCounterpartyIndex].accounts[i1].sumOfInterest).toFixed(2))} ${REMAINING_BALANCE_INDICATION}`
 			contentQueue+=`
 				<details onClick="${FUNCTION_ON_CLICK}" name="account" ${OPEN_IF_SELECTED_ACCOUNT(i1)} style="color:${COLOUR};">
 					<summary>
-						<span>${loans[globalCounterpartyIndex].accounts[i1].title}</span>
+						<span>${loans[globalCounterpartyIndex].accounts[i1].account}</span>
 					</summary>
 					${INTEREST_RATE}
 					${REMAINING_BALANCE}
@@ -320,8 +320,8 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 				:`red`
 			const FORMATTED_DATE=loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].date.join(`-`)
 			const TRANSFER=`${loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].transfer>=0?`+`:`-`}$${numberWithCommas(Math.abs(loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].transfer))}`
-			const PERIOD=loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].period
-				?`<br><span>${loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].period} days from last transfer</span>`
+			const daysSinceLastTransfer=loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].daysSinceLastTransfer
+				?`<br><span>${loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].daysSinceLastTransfer} days from last transfer</span>`
 				:``
 			const ACCRUED_INTEREST=(loans[globalCounterpartyIndex].accounts[globalAccountIndex].interestRate&&loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].interest)
 				?`<br><span style="color:red;">$${numberWithCommas(loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].interest.toFixed(2))}</span> <span>interest accrued</span>`
@@ -332,7 +332,7 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 						<span>${FORMATTED_DATE}</span>
 					</summary>
 					${TRANSFER}
-					${PERIOD}
+					${daysSinceLastTransfer}
 					${ACCRUED_INTEREST}
 				</details>`
 		}
@@ -411,7 +411,7 @@ function createEntry(sectionMajor,sectionMinor,counterpartyIndex,accountIndex){
 			break
 		case `loans`:
 			document.getElementById(`data-entry`).innerHTML=`
-				<h3 style="font-family:'montserrat-bold';">NEW ${INSERTION_TEMPLATE_LOANS[sectionMinor].title}</h3>
+				<h3 style="font-family:'montserrat-bold';">NEW ${INSERTION_TEMPLATE_LOANS[sectionMinor].account}</h3>
 				<div style="display:flex;flex-direction:column;">
 					${INSERTION_TEMPLATE_LOANS[sectionMinor].fields}
 				</div>
@@ -444,7 +444,7 @@ function submitData(sectionMajor,sectionMinor){
 			if(!document.getElementById(`data-entry-value`).value.length)return
 			if(!document.getElementById(`data-entry-value-date`).value.length)return
 			for(let i1=0;i1<assets[sectionMinor].length;i1++){
-				if(document.getElementById(`data-entry-name`).value==assets[sectionMinor][i1].title){
+				if(document.getElementById(`data-entry-name`).value==assets[sectionMinor][i1].account){
 					assets[sectionMinor][i1].records=assets[sectionMinor][i1].records.filter(record=>record.date.join(`-`)!=document.getElementById(`data-entry-value-date`).value)
 					assets[sectionMinor][i1].records.push(
 						{date:document.getElementById(`data-entry-value-date`).value.split(`-`)
@@ -530,12 +530,12 @@ const monthToMonthName=
 	,`Nov`
 	,`Dec`]
 const UNNECESSARY_PROPERTIES=
-	[`period`
+	[`daysSinceLastTransfer`
 	,`balanceAverage`
 	,`interest`
-	,`transfersSum`
-	,`interestSum`
-	,`accountsSum`
+	,`sumOfTransfers`
+	,`sumOfInterest`
+	,`sumOfAccounts`
 	,`daysFromLastTransfer`]
 function replacer(key,value){
 	for(let i1=0;i1<UNNECESSARY_PROPERTIES.length;i1++){
