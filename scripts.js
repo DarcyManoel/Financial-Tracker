@@ -118,22 +118,24 @@ function renderAssets(){
 		const COLOUR=DAYS_SINCE_UPDATE>0
 			?`red`
 			:`green`
+		const ACCOUNT_TITLE=assets.liquid[i1].title
+		const ACCOUNT_BALANCE=numberWithCommas(ACCOUNT_RECORDS[ACCOUNT_RECORDS.length-1].balance)
+		const LAST_UPDATED=DAYS_SINCE_UPDATE>0
+			?`${DAYS_SINCE_UPDATE>1
+				?`${DAYS_SINCE_UPDATE} days ago`
+				:`yesterday`}`
+			:`today`
 		contentQueue+=`
 			<details name="assets" style="color:${COLOUR};">
 				<summary>
-					<span>${assets.liquid[i1].title}</span>
+					<span>${ACCOUNT_TITLE}</span>
 				</summary>
-				<span style="color:green;">$${numberWithCommas(ACCOUNT_RECORDS[ACCOUNT_RECORDS.length-1].balance)}</span>
+				<span style="color:green;">$${ACCOUNT_BALANCE}</span>
 				<br>
-				<canvas id="sparkline${assets.liquid[i1].title}" class="sparkline" width="99" height="20"></canvas>
+				<canvas id="sparkline${ACCOUNT_TITLE}" class="sparkline" width="99" height="20"></canvas>
 				<br>
 				<span>updated</span> 
-				${DAYS_SINCE_UPDATE>0
-					?`${DAYS_SINCE_UPDATE>1
-						?`${DAYS_SINCE_UPDATE} days ago`
-						:`yesterday`}`
-					:`today`
-				}
+				${LAST_UPDATED}
 			</details>`
 	}
 	document.getElementById(`assets-liquid`).innerHTML=contentQueue
@@ -147,21 +149,24 @@ function renderAssets(){
 		const COLOUR=DAYS_SINCE_UPDATE>0
 			?`red`
 			:`green`
+		const ACCOUNT_TITLE=assets.illiquid[i1].title
+		const ACCOUNT_BALANCE=numberWithCommas(ACCOUNT_RECORDS[ACCOUNT_RECORDS.length-1].balance)
+		const LAST_UPDATED=DAYS_SINCE_UPDATE>0
+			?`${DAYS_SINCE_UPDATE>1
+				?`${DAYS_SINCE_UPDATE} days ago`
+				:`yesterday`}`
+			:`today`
 		contentQueue+=`
 			<details name="assets" style="color:${COLOUR};">
 				<summary>
-					<span>${assets.illiquid[i1].title}</span>
+					<span>${ACCOUNT_TITLE}</span>
 				</summary>
-				<span style="color:green;">$${numberWithCommas(ACCOUNT_RECORDS[ACCOUNT_RECORDS.length-1].balance)}</span>
+				<span style="color:green;">$${ACCOUNT_BALANCE}</span>
 				<br>
-				<canvas id="sparkline${assets.illiquid[i1].title}" class="sparkline" width="99" height="20"></canvas>
+				<canvas id="sparkline${ACCOUNT_TITLE}" class="sparkline" width="99" height="20"></canvas>
 				<br>
 				<span>updated</span> 
-				${DAYS_SINCE_UPDATE>0
-					?`${DAYS_SINCE_UPDATE>1?
-						`${DAYS_SINCE_UPDATE} days ago`:
-						`yesterday`}`
-					:`today`}
+				${LAST_UPDATED}
 			</details>`
 	}
 	document.getElementById(`assets-illiquid`).innerHTML=contentQueue
@@ -174,14 +179,15 @@ function renderAssets(){
 		for(let i1=0;i1<loans.length;i1++){
 			loansTotal+=loans[i1].accountsSum
 		}
+		const ACCOUNT_BALANCE=loansTotal<0
+			?`$${numberWithCommas(Math.abs(loansTotal).toFixed(2))}`
+			:`<span style="color:red;">-$${numberWithCommas(Math.abs(loansTotal).toFixed(2))}</span>`
 		contentQueue+=`
 			<details name="assets" style="color:green;">
 				<summary>
 					<span>Loans</span>
 				</summary>
-				${loansTotal<0
-					?`$${numberWithCommas(Math.abs(loansTotal).toFixed(2))}`
-					:`<span style="color:red;">-$${numberWithCommas(Math.abs(loansTotal).toFixed(2))}</span>`}
+				${ACCOUNT_BALANCE}
 				<br>
 				<span>updated</span> automatically
 			</details>`
@@ -238,19 +244,26 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 	}
 	//	counterparties
 	if(!stage){
+		const OPEN_IF_SELECTED_COUNTERPARTY=(index)=>{
+			return (open&&index==globalCounterpartyIndex)
+				?`open`
+				:``
+		}
 		for(let i1=0;i1<loans.length;i1++){
+			const FUNCTION_ON_CLICK=`renderLoans(this.open,1,${i1})`
 			const COLOUR=loans[i1].accountsSum>=0
 				?`green`
 				:`red`
 			const REMAINING_BALANCE_INDICATION=loans[i1].accountsSum>=0
 				?`<span>surplus</span><br>`
 				:`<span>outstanding</span><br>`
+			const REMAINING_BALANCE=`$${numberWithCommas(Math.abs(loans[i1].accountsSum).toFixed(2))} ${REMAINING_BALANCE_INDICATION}`
 			contentQueue+=`
-				<details onClick="renderLoans(this.open,1,${i1})" name="counterparty" ${(open&&i1==globalCounterpartyIndex)?`open`:``} style="color:${COLOUR};">
+				<details onClick="${FUNCTION_ON_CLICK}" name="counterparty" ${OPEN_IF_SELECTED_COUNTERPARTY(i1)} style="color:${COLOUR};">
 					<summary>
 						<span>${loans[i1].counterparty}</span>
 					</summary>
-					$${numberWithCommas(Math.abs(loans[i1].accountsSum).toFixed(2))} ${REMAINING_BALANCE_INDICATION}
+					${REMAINING_BALANCE}
 				</details>`
 		}
 		document.getElementById(`loans-counterparties`).innerHTML=contentQueue
@@ -266,22 +279,30 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 		document.getElementById(`loans-accounts-header`).innerHTML=`
 			<span>ACCOUNTS</span>
 			<span onClick="createEntry('loans','accounts',${globalCounterpartyIndex})" class="button create-entry">+</span>`
+		const OPEN_IF_SELECTED_ACCOUNT=(index)=>{
+			return (open&&index==globalAccountIndex)
+				?`open`
+				:``
+		}
 		for(let i1=0;i1<loans[globalCounterpartyIndex].accounts.length;i1++){
+			const FUNCTION_ON_CLICK=`renderLoans(this.open,2,${globalCounterpartyIndex},${i1})`
 			const COLOUR=loans[globalCounterpartyIndex].accounts[i1].transfersSum>=0
 				?`green`
 				:`red`
+			const INTEREST_RATE=loans[globalCounterpartyIndex].accounts[i1].interestRate
+				?`${loans[globalCounterpartyIndex].accounts[i1].interestRate*100}% <span>interest per annum</span><br>`
+				:``
 			const REMAINING_BALANCE_INDICATION=(loans[globalCounterpartyIndex].accounts[i1].transfersSum-loans[globalCounterpartyIndex].accounts[i1].interestSum)>=0
 				?`<span>surplus</span><br>`
 				:`<span>outstanding</span><br>`
+			const REMAINING_BALANCE=`$${numberWithCommas(Math.abs(loans[globalCounterpartyIndex].accounts[i1].transfersSum-loans[globalCounterpartyIndex].accounts[i1].interestSum).toFixed(2))} ${REMAINING_BALANCE_INDICATION}`
 			contentQueue+=`
-				<details onClick="renderLoans(this.open,2,${globalCounterpartyIndex},${i1})" name="account" ${(open&&i1==globalAccountIndex)?`open`:``} style="color:${COLOUR};">
+				<details onClick="${FUNCTION_ON_CLICK}" name="account" ${OPEN_IF_SELECTED_ACCOUNT(i1)} style="color:${COLOUR};">
 					<summary>
 						<span>${loans[globalCounterpartyIndex].accounts[i1].title}</span>
 					</summary>
-					${loans[globalCounterpartyIndex].accounts[i1].interestRate
-						?`${loans[globalCounterpartyIndex].accounts[i1].interestRate*100}% <span>interest per annum</span><br>`
-						:``}
-					$${numberWithCommas(Math.abs(loans[globalCounterpartyIndex].accounts[i1].transfersSum-loans[globalCounterpartyIndex].accounts[i1].interestSum).toFixed(2))} ${REMAINING_BALANCE_INDICATION}
+					${INTEREST_RATE}
+					${REMAINING_BALANCE}
 				</details>`
 		}
 		document.getElementById(`loans-accounts`).innerHTML=contentQueue
@@ -297,22 +318,22 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 			const COLOUR=loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].transfer>=0
 				?`green`
 				:`red`
+			const FORMATTED_DATE=loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].date.join(`-`)
+			const TRANSFER=`${loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].transfer>=0?`+`:`-`}$${numberWithCommas(Math.abs(loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].transfer))}`
+			const PERIOD=loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].period
+				?`<br><span>${loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].period} days from last transfer</span>`
+				:``
+			const ACCRUED_INTEREST=(loans[globalCounterpartyIndex].accounts[globalAccountIndex].interestRate&&loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].interest)
+				?`<br><span style="color:red;">$${numberWithCommas(loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].interest.toFixed(2))}</span> <span>interest accrued</span>`
+				:``
 			contentQueue+=`
 				<details style="color:${COLOUR};">
 					<summary>
-						<span>${loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].date.join(`-`)}</span>
+						<span>${FORMATTED_DATE}</span>
 					</summary>
-					${loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].transfer>=0
-						?`+$${numberWithCommas(loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].transfer)}`
-						:`-$${numberWithCommas(Math.abs(loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].transfer))}`}
-					${loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].period
-						?`<br><span>${loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].period} days from last transfer</span>`
-						:``}
-					${loans[globalCounterpartyIndex].accounts[globalAccountIndex].interestRate
-						?`<br>${loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].interest
-							?`<span style="color:red;">$${numberWithCommas(loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].interest.toFixed(2))}</span> <span>interest accrued</span>`
-							:``}`
-						:``}
+					${TRANSFER}
+					${PERIOD}
+					${ACCRUED_INTEREST}
 				</details>`
 		}
 		document.getElementById(`loans-transfers`).innerHTML=contentQueue
