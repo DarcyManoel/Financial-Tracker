@@ -60,7 +60,7 @@ function calculateAdditionalInformation(stage){
 				}
 				transfersSum+=loans[i1].accounts[i2].transfers[i3].transfer
 			}
-			if(loans[i1].accounts[i2].interestRate){
+			if(loans[i1].accounts[i2].interestRate&&loans[i1].accounts[i2].transfers.length){
 				interestSum+=calculateInterest(
 					(transfersSum-interestSum)*-1
 					,loans[i1].accounts[i2].interestRate
@@ -358,7 +358,7 @@ function changeContent(value){
 	document.getElementById(`content-${value.toLowerCase()}`).style=``
 }
 function numberWithCommas(x) {
-	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g,`,`);
+	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g,`,`)
 }
 const INSERTION_TEMPLATE_LOANS={
 	counterparties:{
@@ -372,6 +372,9 @@ const INSERTION_TEMPLATE_LOANS={
 		fields:`
 			<span id="data-entry-name-wrapper" data-before="!" style="color:initial;">
 				<input id="data-entry-name" type="text" placeholder="Account name..." onKeyUp="testValidity(this.id)"/>
+			</span>
+			<span id="data-entry-interest-wrapper" data-before="!" style="color:initial;">
+				<input id="data-entry-interest" type="number" placeholder="Interest rate..." onKeyUp="testValidity(this.id)"/>
 			</span>`},
 	transfers:{
 		title:`TRANSFER`,
@@ -481,8 +484,12 @@ function submitData(sectionMajor,sectionMinor){
 				case `accounts`:
 					stage=1
 					if(!document.getElementById(`data-entry-name`).value.length)return
+					if(!/^[0-9]+(\.[0-9]{1,2})?$/.test(document.getElementById(`data-entry-interest`).value)){
+						return
+					}
 					loans[globalCounterpartyIndex].accounts.push(
 						{title:document.getElementById(`data-entry-name`).value
+						,interestRate:document.getElementById(`data-entry-interest`).value/100
 						,transfers:[]})
 					break
 				case `transfers`:

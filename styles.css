@@ -102,6 +102,13 @@ input::-webkit-inner-spin-button{
 	-webkit-appearance: none;
 	margin:0;
 }
+#data-entry-interest-wrapper{
+	display:flex;
+}
+#data-entry-interest-wrapper::after{
+	content:'%';
+	font-size:1.2rem;
+}
 span::before{
 	color:red;
 	content:attr(data-before);
@@ -110,9 +117,7 @@ span::before{
 	position:absolute;
 	transform:translate(-1rem);
 }
-#data-entry,
-#data-entry-assets,
-#data-entry-loans{
+#data-entry{
 	z-index:3;
 }
 #menubar{
