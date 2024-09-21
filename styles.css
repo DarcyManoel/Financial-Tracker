@@ -148,7 +148,12 @@ span::before{
 .wrapper{
 	flex:1 1 0%;
 	overflow-x:hidden;
+	opacity:1;
 	padding:0 1rem .5rem 1rem;
+	transition:.5s;
+}
+.wrapper:has(div[fade-if-empty]:empty){
+	opacity:.5;
 }
 .header{
 	background-color:#fff;

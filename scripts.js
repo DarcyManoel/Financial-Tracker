@@ -93,13 +93,17 @@ function sortArrays(stage){
 	for(let i1=0;i1<financialHoldings.illiquid.length;i1++)
 		financialHoldings.illiquid[i1].records=financialHoldings.illiquid[i1].records.sort(function(a,b){return a.date.join(``)-b.date.join(``)})
 	//	loans
-	const GLOBAL_COUNTERPARTY_NAME=loans[globalCounterpartyIndex].counterparty
-	const GLOBAL_ACCOUNT_TITLE=loans[globalCounterpartyIndex].accounts[globalAccountIndex].account
-	loans=loans.sort(function(a,b){return a.sumOfAccounts-b.sumOfAccounts})
-	for(let i1=0;i1<loans.length;i1++)
-		loans[i1].accounts=loans[i1].accounts.sort(function(a,b){return a.sumOfTransfers-b.sumOfTransfers})
-	globalCounterpartyIndex=loans.findIndex(counterparties=>counterparties.counterparty===GLOBAL_COUNTERPARTY_NAME)
-	globalAccountIndex=loans[globalCounterpartyIndex].accounts.findIndex(accounts=>accounts.account===GLOBAL_ACCOUNT_TITLE)
+	if(globalCounterpartyIndex){
+		let GLOBAL_COUNTERPARTY_NAME=loans[globalCounterpartyIndex].counterparty
+		loans=loans.sort(function(a,b){return a.sumOfAccounts-b.sumOfAccounts})
+		globalCounterpartyIndex=loans.findIndex(counterparties=>counterparties.counterparty===GLOBAL_COUNTERPARTY_NAME)
+		if(globalAccountIndex){
+			let GLOBAL_ACCOUNT_TITLE=loans[globalCounterpartyIndex].accounts[globalAccountIndex].account
+			for(let i1=0;i1<loans.length;i1++)
+				loans[i1].accounts=loans[i1].accounts.sort(function(a,b){return a.sumOfTransfers-b.sumOfTransfers})
+			globalAccountIndex=loans[globalCounterpartyIndex].accounts.findIndex(accounts=>accounts.account===GLOBAL_ACCOUNT_TITLE)
+		}
+	}
 	//
 	renderMenu(stage)
 }
@@ -232,13 +236,13 @@ function drawSparkline(canvasId,dataPoints,daysSinceLastTransfer,balanceAverage)
 	canvasContext.strokeStyle=`black`
 	canvasContext.stroke()
 }
-let globalCounterpartyIndex=0
-let globalAccountIndex=0
+let globalCounterpartyIndex
+let globalAccountIndex
 let open=0
 function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 	if(counterpartyIndex+1)globalCounterpartyIndex=counterpartyIndex
 	if(accountIndex+1)globalAccountIndex=accountIndex
-	let contentQueue=``
+	let contentQueue=` `
 	if(isOpen){
 		stage--
 	}
@@ -344,7 +348,7 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 function changeContent(value){
 	const OPTIONS=document.getElementById(`tracking-sections`).options
 	for(let i1=0;i1<OPTIONS.length;i1++)document.getElementById(`content-${OPTIONS[i1].text.toLowerCase().replace(/ /g,`-`)}`).style=`display:none;`
-	document.getElementById(`content-${value.toLowerCase()}`).style=``
+	document.getElementById(`content-${value.toLowerCase().replace(/ /g,`-`)}`).style=``
 }
 function numberWithCommas(x) {
 	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g,`,`)
