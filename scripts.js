@@ -54,19 +54,20 @@ function calculateAdditionalInformation(stage){
 				if(i3>0){
 					loans[i1].accounts[i2].transfers[i3].daysSinceLastTransfer=Math.round((new Date(loans[i1].accounts[i2].transfers[i3].date.join(`/`))-new Date(loans[i1].accounts[i2].transfers[i3-1].date.join(`/`)))/86400000)
 					if(loans[i1].accounts[i2].interestRate){
-						sumOfInterest+=loans[i1].accounts[i2].transfers[i3].interest=calculateInterest(
-							(sumOfTransfers-sumOfInterest)*-1
-							,loans[i1].accounts[i2].interestRate
-							,loans[i1].accounts[i2].transfers[i3].daysSinceLastTransfer)
+						const BALANCE=(sumOfTransfers-sumOfInterest)*-1
+						const INTEREST_RATE_PER_DAY=loans[i1].accounts[i2].interestRate/365
+						const TIME_BETWEEN_TRANSFERS=loans[i1].accounts[i2].transfers[i3].daysSinceLastTransfer
+						if(BALANCE>=0)
+							sumOfInterest+=loans[i1].accounts[i2].transfers[i3].interest=BALANCE*(1+INTEREST_RATE_PER_DAY)**TIME_BETWEEN_TRANSFERS-BALANCE
 					}
 				}
 				sumOfTransfers+=loans[i1].accounts[i2].transfers[i3].transfer
 			}
 			if(loans[i1].accounts[i2].interestRate&&loans[i1].accounts[i2].transfers.length){
-				sumOfInterest+=calculateInterest(
-					(sumOfTransfers-sumOfInterest)*-1
-					,loans[i1].accounts[i2].interestRate
-					,Math.round((new Date()-new Date(loans[i1].accounts[i2].transfers[loans[i1].accounts[i2].transfers.length-1].date.join(`/`)))/86400000))
+				const BALANCE=(sumOfTransfers-sumOfInterest)*-1
+				const TIME_SINCE_LAST_TRANSFER=Math.round((new Date()-new Date(loans[i1].accounts[i2].transfers[loans[i1].accounts[i2].transfers.length-1].date.join(`/`)))/86400000)
+				if(BALANCE>=0)
+					sumOfInterest+=loans[i1].accounts[i2].transfers[i3].interest=BALANCE*(1+INTEREST_RATE_PER_DAY)**TIME_SINCE_LAST_TRANSFER-BALANCE
 			}
 			loans[i1].accounts[i2].sumOfTransfers=parseFloat(sumOfTransfers)
 			loans[i1].accounts[i2].sumOfInterest=parseFloat(sumOfInterest)
@@ -76,15 +77,6 @@ function calculateAdditionalInformation(stage){
 	}
 	//
 	sortArrays(stage)
-}
-function calculateInterest(balance,interestRate,days){
-	const INTEREST_RATE_PER_DAY=interestRate/365
-	let interestAccrued=0
-	for(let i1=0;i1<days;i1++){
-		if(balance+interestAccrued<=0)break
-		interestAccrued+=(balance+interestAccrued)*INTEREST_RATE_PER_DAY
-	}
-	return interestAccrued
 }
 function sortArrays(stage){
 	//	financial holdings
