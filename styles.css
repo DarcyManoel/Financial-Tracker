@@ -137,8 +137,7 @@ span::before{
 #memory-management *{
 	padding:.5rem 1rem;
 }
-#content-financial-holdings,
-#content-loans{
+#content-inner{
 	display:flex;
 	gap:1rem;
 	height:calc(100% - 3rem);
