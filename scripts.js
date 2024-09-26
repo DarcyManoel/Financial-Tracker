@@ -29,8 +29,11 @@ function closeLandingModal(){
 	document.getElementById(`content`).style=`animation:fade-in .2s;`
 	changeContent()
 }
-let financialHoldings={liquid:[],illiquid:[]}
-let loans=[]
+let data={
+	financialHoldings:{
+		liquid:[],
+		illiquid:[]},
+	loans:[]}
 function uploadFile(file){
 	closeLandingModal()
 	let files=event.target.files
@@ -38,9 +41,7 @@ function uploadFile(file){
 	fileReader.readAsText(files[0])
 	fileReader.onload=function(e){
 		try{
-			const data=JSON.parse(e.target.result)
-			if(data.financialHoldings.illiquid.length&&data.financialHoldings.liquid.length)financialHoldings=data.financialHoldings
-			if(data.loans.length)loans=data.loans
+			data=JSON.parse(e.target.result)
 			calculateAdditionalInformation()
 		}catch(error){
 			console.error(`Error parsing JSON:`,error)
@@ -49,78 +50,78 @@ function uploadFile(file){
 }
 function calculateAdditionalInformation(stage){
 	//	financial holdings
-	for(let i1=0;i1<financialHoldings.liquid.length;i1++){
-		financialHoldings.liquid[i1].daysSinceLastTransfer=Math.round((new Date(financialHoldings.liquid[i1].records[financialHoldings.liquid[i1].records.length-1].date.join(`/`))-new Date(financialHoldings.liquid[i1].records[0].date.join(`/`)))/86400000)
-		financialHoldings.liquid[i1].records[0].daysSinceLastTransfer=0
-		let balanceAverage=financialHoldings.liquid[i1].records[0].balance
-		for(let i2=1;i2<financialHoldings.liquid[i1].records.length;i2++){
-			financialHoldings.liquid[i1].records[i2].daysSinceLastTransfer=Math.round((new Date(financialHoldings.liquid[i1].records[i2].date.join(`/`))-new Date(financialHoldings.liquid[i1].records[i2-1].date.join(`/`)))/86400000)
-			balanceAverage+=financialHoldings.liquid[i1].records[i2].balance
+	for(let i1=0;i1<data.financialHoldings.liquid.length;i1++){
+		data.financialHoldings.liquid[i1].daysSinceLastTransfer=Math.round((new Date(data.financialHoldings.liquid[i1].records[data.financialHoldings.liquid[i1].records.length-1].date.join(`/`))-new Date(data.financialHoldings.liquid[i1].records[0].date.join(`/`)))/86400000)
+		data.financialHoldings.liquid[i1].records[0].daysSinceLastTransfer=0
+		let balanceAverage=data.financialHoldings.liquid[i1].records[0].balance
+		for(let i2=1;i2<data.financialHoldings.liquid[i1].records.length;i2++){
+			data.financialHoldings.liquid[i1].records[i2].daysSinceLastTransfer=Math.round((new Date(data.financialHoldings.liquid[i1].records[i2].date.join(`/`))-new Date(data.financialHoldings.liquid[i1].records[i2-1].date.join(`/`)))/86400000)
+			balanceAverage+=data.financialHoldings.liquid[i1].records[i2].balance
 		}
-		financialHoldings.liquid[i1].balanceAverage=balanceAverage/financialHoldings.liquid[i1].records.length
+		data.financialHoldings.liquid[i1].balanceAverage=balanceAverage/data.financialHoldings.liquid[i1].records.length
 	}
-	for(let i1=0;i1<financialHoldings.illiquid.length;i1++){
-		financialHoldings.illiquid[i1].daysSinceLastTransfer=Math.round((new Date(financialHoldings.illiquid[i1].records[financialHoldings.illiquid[i1].records.length-1].date.join(`/`))-new Date(financialHoldings.illiquid[i1].records[0].date.join(`/`)))/86400000)
-		financialHoldings.illiquid[i1].records[0].daysSinceLastTransfer=0
-		let balanceAverage=financialHoldings.illiquid[i1].records[0].balance
-		for(let i2=1;i2<financialHoldings.illiquid[i1].records.length;i2++){
-			financialHoldings.illiquid[i1].records[i2].daysSinceLastTransfer=Math.round((new Date(financialHoldings.illiquid[i1].records[i2].date.join(`/`))-new Date(financialHoldings.illiquid[i1].records[i2-1].date.join(`/`)))/86400000)
-			balanceAverage+=financialHoldings.illiquid[i1].records[i2].balance
+	for(let i1=0;i1<data.financialHoldings.illiquid.length;i1++){
+		data.financialHoldings.illiquid[i1].daysSinceLastTransfer=Math.round((new Date(data.financialHoldings.illiquid[i1].records[data.financialHoldings.illiquid[i1].records.length-1].date.join(`/`))-new Date(data.financialHoldings.illiquid[i1].records[0].date.join(`/`)))/86400000)
+		data.financialHoldings.illiquid[i1].records[0].daysSinceLastTransfer=0
+		let balanceAverage=data.financialHoldings.illiquid[i1].records[0].balance
+		for(let i2=1;i2<data.financialHoldings.illiquid[i1].records.length;i2++){
+			data.financialHoldings.illiquid[i1].records[i2].daysSinceLastTransfer=Math.round((new Date(data.financialHoldings.illiquid[i1].records[i2].date.join(`/`))-new Date(data.financialHoldings.illiquid[i1].records[i2-1].date.join(`/`)))/86400000)
+			balanceAverage+=data.financialHoldings.illiquid[i1].records[i2].balance
 		}
-		financialHoldings.illiquid[i1].balanceAverage=balanceAverage/financialHoldings.illiquid[i1].records.length
+		data.financialHoldings.illiquid[i1].balanceAverage=balanceAverage/data.financialHoldings.illiquid[i1].records.length
 	}
 	//	loans
-	for(let i1=0;i1<loans.length;i1++){
+	for(let i1=0;i1<data.loans.length;i1++){
 		let sumOfAccounts=0
-		for(let i2=0;i2<loans[i1].accounts.length;i2++){
+		for(let i2=0;i2<data.loans[i1].accounts.length;i2++){
 			let sumOfTransfers=0
 			let sumOfInterest=0
-			for(let i3=0;i3<loans[i1].accounts[i2].transfers.length;i3++){
-				loans[i1].accounts[i2].transfers[i3].date[1]=String(loans[i1].accounts[i2].transfers[i3].date[1]).padStart(2,`0`)
-				loans[i1].accounts[i2].transfers[i3].date[2]=String(loans[i1].accounts[i2].transfers[i3].date[2]).padStart(2,`0`)
+			for(let i3=0;i3<data.loans[i1].accounts[i2].transfers.length;i3++){
+				data.loans[i1].accounts[i2].transfers[i3].date[1]=String(data.loans[i1].accounts[i2].transfers[i3].date[1]).padStart(2,`0`)
+				data.loans[i1].accounts[i2].transfers[i3].date[2]=String(data.loans[i1].accounts[i2].transfers[i3].date[2]).padStart(2,`0`)
 				if(i3>0){
-					loans[i1].accounts[i2].transfers[i3].daysSinceLastTransfer=Math.round((new Date(loans[i1].accounts[i2].transfers[i3].date.join(`/`))-new Date(loans[i1].accounts[i2].transfers[i3-1].date.join(`/`)))/86400000)
-					if(loans[i1].accounts[i2].interestRate){
+					data.loans[i1].accounts[i2].transfers[i3].daysSinceLastTransfer=Math.round((new Date(data.loans[i1].accounts[i2].transfers[i3].date.join(`/`))-new Date(data.loans[i1].accounts[i2].transfers[i3-1].date.join(`/`)))/86400000)
+					if(data.loans[i1].accounts[i2].interestRate){
 						const BALANCE=(sumOfTransfers-sumOfInterest)*-1
-						const INTEREST_RATE_PER_DAY=loans[i1].accounts[i2].interestRate/365
-						const TIME_BETWEEN_TRANSFERS=loans[i1].accounts[i2].transfers[i3].daysSinceLastTransfer
+						const INTEREST_RATE_PER_DAY=data.loans[i1].accounts[i2].interestRate/365
+						const TIME_BETWEEN_TRANSFERS=data.loans[i1].accounts[i2].transfers[i3].daysSinceLastTransfer
 						if(BALANCE>=0)
-							sumOfInterest+=loans[i1].accounts[i2].transfers[i3].interest=BALANCE*(1+INTEREST_RATE_PER_DAY)**TIME_BETWEEN_TRANSFERS-BALANCE
+							sumOfInterest+=data.loans[i1].accounts[i2].transfers[i3].interest=BALANCE*(1+INTEREST_RATE_PER_DAY)**TIME_BETWEEN_TRANSFERS-BALANCE
 					}
 				}
-				sumOfTransfers+=loans[i1].accounts[i2].transfers[i3].transfer
+				sumOfTransfers+=data.loans[i1].accounts[i2].transfers[i3].transfer
 			}
-			if(loans[i1].accounts[i2].interestRate&&loans[i1].accounts[i2].transfers.length){
+			if(data.loans[i1].accounts[i2].interestRate&&data.loans[i1].accounts[i2].transfers.length){
 				const BALANCE=(sumOfTransfers-sumOfInterest)*-1
-				const TIME_SINCE_LAST_TRANSFER=Math.round((new Date()-new Date(loans[i1].accounts[i2].transfers[loans[i1].accounts[i2].transfers.length-1].date.join(`/`)))/86400000)
+				const TIME_SINCE_LAST_TRANSFER=Math.round((new Date()-new Date(data.loans[i1].accounts[i2].transfers[data.loans[i1].accounts[i2].transfers.length-1].date.join(`/`)))/86400000)
 				if(BALANCE>=0)
-					sumOfInterest+=loans[i1].accounts[i2].transfers[i3].interest=BALANCE*(1+INTEREST_RATE_PER_DAY)**TIME_SINCE_LAST_TRANSFER-BALANCE
+					sumOfInterest+=data.loans[i1].accounts[i2].transfers[i3].interest=BALANCE*(1+INTEREST_RATE_PER_DAY)**TIME_SINCE_LAST_TRANSFER-BALANCE
 			}
-			loans[i1].accounts[i2].sumOfTransfers=parseFloat(sumOfTransfers)
-			loans[i1].accounts[i2].sumOfInterest=parseFloat(sumOfInterest)
+			data.loans[i1].accounts[i2].sumOfTransfers=parseFloat(sumOfTransfers)
+			data.loans[i1].accounts[i2].sumOfInterest=parseFloat(sumOfInterest)
 			sumOfAccounts+=sumOfTransfers-sumOfInterest
 		}
-		loans[i1].sumOfAccounts=parseFloat(sumOfAccounts)
+		data.loans[i1].sumOfAccounts=parseFloat(sumOfAccounts)
 	}
 	//
 	sortArrays(stage)
 }
 function sortArrays(stage){
 	//	financial holdings
-	for(let i1=0;i1<financialHoldings.liquid.length;i1++)
-		financialHoldings.liquid[i1].records=financialHoldings.liquid[i1].records.sort(function(a,b){return a.date.join(``)-b.date.join(``)})
-	for(let i1=0;i1<financialHoldings.illiquid.length;i1++)
-		financialHoldings.illiquid[i1].records=financialHoldings.illiquid[i1].records.sort(function(a,b){return a.date.join(``)-b.date.join(``)})
+	for(let i1=0;i1<data.financialHoldings.liquid.length;i1++)
+		data.financialHoldings.liquid[i1].records=data.financialHoldings.liquid[i1].records.sort(function(a,b){return a.date.join(``)-b.date.join(``)})
+	for(let i1=0;i1<data.financialHoldings.illiquid.length;i1++)
+		data.financialHoldings.illiquid[i1].records=data.financialHoldings.illiquid[i1].records.sort(function(a,b){return a.date.join(``)-b.date.join(``)})
 	//	loans
 	if(globalCounterpartyIndex){
-		let GLOBAL_COUNTERPARTY_NAME=loans[globalCounterpartyIndex].counterparty
-		loans=loans.sort(function(a,b){return a.sumOfAccounts-b.sumOfAccounts})
-		globalCounterpartyIndex=loans.findIndex(counterparties=>counterparties.counterparty===GLOBAL_COUNTERPARTY_NAME)
+		let GLOBAL_COUNTERPARTY_NAME=data.loans[globalCounterpartyIndex].counterparty
+		loans=data.loans.sort(function(a,b){return a.sumOfAccounts-b.sumOfAccounts})
+		globalCounterpartyIndex=data.loans.findIndex(counterparties=>counterparties.counterparty===GLOBAL_COUNTERPARTY_NAME)
 		if(globalAccountIndex){
-			let GLOBAL_ACCOUNT_TITLE=loans[globalCounterpartyIndex].accounts[globalAccountIndex].account
-			for(let i1=0;i1<loans.length;i1++)
-				loans[i1].accounts=loans[i1].accounts.sort(function(a,b){return a.sumOfTransfers-b.sumOfTransfers})
-			globalAccountIndex=loans[globalCounterpartyIndex].accounts.findIndex(accounts=>accounts.account===GLOBAL_ACCOUNT_TITLE)
+			let GLOBAL_ACCOUNT_TITLE=data.loans[globalCounterpartyIndex].accounts[globalAccountIndex].account
+			for(let i1=0;i1<data.loans.length;i1++)
+				data.loans[i1].accounts=data.loans[i1].accounts.sort(function(a,b){return a.sumOfTransfers-b.sumOfTransfers})
+			globalAccountIndex=data.loans[globalCounterpartyIndex].accounts.findIndex(accounts=>accounts.account===GLOBAL_ACCOUNT_TITLE)
 		}
 	}
 	//
@@ -139,13 +140,13 @@ function renderContent(stage){
 function renderFinancialHoldings(){
 	const DATE_TODAY=new Date(`${new Date().getFullYear()}/${new Date().getMonth()+1}/${new Date().getDate()}`)
 	let contentQueue=``
-	for(let i1=0;i1<financialHoldings.liquid.length;i1++){
-		const ACCOUNT_RECORDS=financialHoldings.liquid[i1].records
+	for(let i1=0;i1<data.financialHoldings.liquid.length;i1++){
+		const ACCOUNT_RECORDS=data.financialHoldings.liquid[i1].records
 		const DAYS_SINCE_UPDATE=(DATE_TODAY-new Date(ACCOUNT_RECORDS[ACCOUNT_RECORDS.length-1].date.join(`/`)))/86400000
 		const COLOUR=DAYS_SINCE_UPDATE>0
 			?`red`
 			:`green`
-		const ACCOUNT=financialHoldings.liquid[i1].account
+		const ACCOUNT=data.financialHoldings.liquid[i1].account
 		const BALANCE=numberWithCommas(ACCOUNT_RECORDS[ACCOUNT_RECORDS.length-1].balance)
 		const LAST_UPDATED=DAYS_SINCE_UPDATE>0
 			?`${DAYS_SINCE_UPDATE>1
@@ -153,7 +154,7 @@ function renderFinancialHoldings(){
 				:`yesterday`}`
 			:`today`
 		contentQueue+=`
-			<details name="financialHoldings" style="color:${COLOUR};">
+			<details name="data.financialHoldings" style="color:${COLOUR};">
 				<summary>
 					<span>${ACCOUNT}</span>
 				</summary>
@@ -166,17 +167,17 @@ function renderFinancialHoldings(){
 			</details>`
 	}
 	document.getElementById(`financial-holdings-liquid`).innerHTML=contentQueue
-	for(let i1=0;i1<financialHoldings.liquid.length;i1++){
-		drawSparkline(`sparkline${financialHoldings.liquid[i1].account}`,financialHoldings.liquid[i1].records,financialHoldings.liquid[i1].daysSinceLastTransfer,financialHoldings.liquid[i1].balanceAverage)
+	for(let i1=0;i1<data.financialHoldings.liquid.length;i1++){
+		drawSparkline(`sparkline${data.financialHoldings.liquid[i1].account}`,data.financialHoldings.liquid[i1].records,data.financialHoldings.liquid[i1].daysSinceLastTransfer,data.financialHoldings.liquid[i1].balanceAverage)
 	}
 	contentQueue=``
-	for(let i1=0;i1<financialHoldings.illiquid.length;i1++){
-		const ACCOUNT_RECORDS=financialHoldings.illiquid[i1].records
+	for(let i1=0;i1<data.financialHoldings.illiquid.length;i1++){
+		const ACCOUNT_RECORDS=data.financialHoldings.illiquid[i1].records
 		const DAYS_SINCE_UPDATE=(DATE_TODAY-new Date(ACCOUNT_RECORDS[ACCOUNT_RECORDS.length-1].date.join(`/`)))/86400000
 		const COLOUR=DAYS_SINCE_UPDATE>0
 			?`red`
 			:`green`
-		const ACCOUNT=financialHoldings.illiquid[i1].account
+		const ACCOUNT=data.financialHoldings.illiquid[i1].account
 		const BALANCE=numberWithCommas(ACCOUNT_RECORDS[ACCOUNT_RECORDS.length-1].balance)
 		const LAST_UPDATED=DAYS_SINCE_UPDATE>0
 			?`${DAYS_SINCE_UPDATE>1
@@ -184,7 +185,7 @@ function renderFinancialHoldings(){
 				:`yesterday`}`
 			:`today`
 		contentQueue+=`
-			<details name="financialHoldings" style="color:${COLOUR};">
+			<details name="data.financialHoldings" style="color:${COLOUR};">
 				<summary>
 					<span>${ACCOUNT}</span>
 				</summary>
@@ -197,20 +198,20 @@ function renderFinancialHoldings(){
 			</details>`
 	}
 	document.getElementById(`financial-holdings-illiquid`).innerHTML=contentQueue
-	for(let i1=0;i1<financialHoldings.illiquid.length;i1++){
-		drawSparkline(`sparkline${financialHoldings.illiquid[i1].account}`,financialHoldings.illiquid[i1].records,financialHoldings.illiquid[i1].daysSinceLastTransfer,financialHoldings.illiquid[i1].balanceAverage)
+	for(let i1=0;i1<data.financialHoldings.illiquid.length;i1++){
+		drawSparkline(`sparkline${data.financialHoldings.illiquid[i1].account}`,data.financialHoldings.illiquid[i1].records,data.financialHoldings.illiquid[i1].daysSinceLastTransfer,data.financialHoldings.illiquid[i1].balanceAverage)
 	}
 	contentQueue=``
-	if(loans.length){
+	if(data.loans.length){
 		let loansTotal=0
-		for(let i1=0;i1<loans.length;i1++){
-			loansTotal+=loans[i1].sumOfAccounts
+		for(let i1=0;i1<data.loans.length;i1++){
+			loansTotal+=data.loans[i1].sumOfAccounts
 		}
 		const BALANCE=loansTotal<=0
 			?`$${numberWithCommas(Math.abs(loansTotal).toFixed(2))}`
 			:`<span style="color:red;">-$${numberWithCommas(Math.abs(loansTotal).toFixed(2))}</span>`
 		contentQueue+=`
-			<details name="financialHoldings" style="color:green;">
+			<details name="data.financialHoldings" style="color:green;">
 				<summary>
 					<span>Loans</span>
 				</summary>
@@ -276,16 +277,16 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 				?`open`
 				:``
 		}
-		for(let i1=0;i1<loans.length;i1++){
+		for(let i1=0;i1<data.loans.length;i1++){
 			const FUNCTION_ON_CLICK=`renderLoans(this.open,1,${i1})`
-			const COLOUR=loans[i1].sumOfAccounts>=0
+			const COLOUR=data.loans[i1].sumOfAccounts>=0
 				?`green`
 				:`red`
-			const COUNTERPARTY=loans[i1].counterparty
-			const BALANCE_REMAINING_INDICATION=loans[i1].sumOfAccounts>=0
+			const COUNTERPARTY=data.loans[i1].counterparty
+			const BALANCE_REMAINING_INDICATION=data.loans[i1].sumOfAccounts>=0
 				?`<span>surplus</span><br>`
 				:`<span>outstanding</span><br>`
-			const BALANCE_REMAINING=`$${numberWithCommas(Math.abs(loans[i1].sumOfAccounts).toFixed(2))} ${BALANCE_REMAINING_INDICATION}`
+			const BALANCE_REMAINING=`$${numberWithCommas(Math.abs(data.loans[i1].sumOfAccounts).toFixed(2))} ${BALANCE_REMAINING_INDICATION}`
 			contentQueue+=`
 				<details onClick="${FUNCTION_ON_CLICK}" name="counterparty" ${OPEN_IF_SELECTED_COUNTERPARTY(i1)} style="color:${COLOUR};">
 					<summary>
@@ -312,19 +313,19 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 				?`open`
 				:``
 		}
-		for(let i1=0;i1<loans[globalCounterpartyIndex].accounts.length;i1++){
+		for(let i1=0;i1<data.loans[globalCounterpartyIndex].accounts.length;i1++){
 			const FUNCTION_ON_CLICK=`renderLoans(this.open,2,${globalCounterpartyIndex},${i1})`
-			const COLOUR=loans[globalCounterpartyIndex].accounts[i1].sumOfTransfers>=0
+			const COLOUR=data.loans[globalCounterpartyIndex].accounts[i1].sumOfTransfers>=0
 				?`green`
 				:`red`
-			const ACCOUNT=loans[globalCounterpartyIndex].accounts[i1].account
-			const INTEREST_RATE=loans[globalCounterpartyIndex].accounts[i1].interestRate
-				?`${loans[globalCounterpartyIndex].accounts[i1].interestRate*100}% <span>interest per annum</span><br>`
+			const ACCOUNT=data.loans[globalCounterpartyIndex].accounts[i1].account
+			const INTEREST_RATE=data.loans[globalCounterpartyIndex].accounts[i1].interestRate
+				?`${data.loans[globalCounterpartyIndex].accounts[i1].interestRate*100}% <span>interest per annum</span><br>`
 				:``
-			const BALANCE_REMAINING_INDICATION=(loans[globalCounterpartyIndex].accounts[i1].sumOfTransfers-loans[globalCounterpartyIndex].accounts[i1].sumOfInterest)>=0
+			const BALANCE_REMAINING_INDICATION=(data.loans[globalCounterpartyIndex].accounts[i1].sumOfTransfers-data.loans[globalCounterpartyIndex].accounts[i1].sumOfInterest)>=0
 				?`<span>surplus</span><br>`
 				:`<span>outstanding</span><br>`
-			const BALANCE_REMAINING=`$${numberWithCommas(Math.abs(loans[globalCounterpartyIndex].accounts[i1].sumOfTransfers-loans[globalCounterpartyIndex].accounts[i1].sumOfInterest).toFixed(2))} ${BALANCE_REMAINING_INDICATION}`
+			const BALANCE_REMAINING=`$${numberWithCommas(Math.abs(data.loans[globalCounterpartyIndex].accounts[i1].sumOfTransfers-data.loans[globalCounterpartyIndex].accounts[i1].sumOfInterest).toFixed(2))} ${BALANCE_REMAINING_INDICATION}`
 			contentQueue+=`
 				<details onClick="${FUNCTION_ON_CLICK}" name="account" ${OPEN_IF_SELECTED_ACCOUNT(i1)} style="color:${COLOUR};">
 					<summary>
@@ -343,17 +344,17 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 		document.getElementById(`loans-transfers-header`).innerHTML=`
 			<span>TRANSFERS</span>
 			<span onClick="createEntry('loans','transfers',${globalCounterpartyIndex},${globalAccountIndex})" class="button create-entry">+</span>`
-		for(let i1=0;i1<loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers.length;i1++){
-			const COLOUR=loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].transfer>=0
+		for(let i1=0;i1<data.loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers.length;i1++){
+			const COLOUR=data.loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].transfer>=0
 				?`green`
 				:`red`
-			const FORMATTED_DATE=loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].date.join(`-`)
-			const TRANSFER=`${loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].transfer>=0?`+`:`-`}$${numberWithCommas(Math.abs(loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].transfer))}`
-			const DAYS_SINCE_LAST_TRANSFER_FORMATTED=loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].daysSinceLastTransfer
-				?`<br><span>${loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].daysSinceLastTransfer} days from last transfer</span>`
+			const FORMATTED_DATE=data.loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].date.join(`-`)
+			const TRANSFER=`${data.loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].transfer>=0?`+`:`-`}$${numberWithCommas(Math.abs(data.loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].transfer))}`
+			const DAYS_SINCE_LAST_TRANSFER_FORMATTED=data.loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].daysSinceLastTransfer
+				?`<br><span>${data.loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].daysSinceLastTransfer} days from last transfer</span>`
 				:``
-			const INTEREST_ACCRUED=(loans[globalCounterpartyIndex].accounts[globalAccountIndex].interestRate&&loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].interest)
-				?`<br><span style="color:red;">$${numberWithCommas(loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].interest.toFixed(2))}</span> <span>interest accrued</span>`
+			const INTEREST_ACCRUED=(data.loans[globalCounterpartyIndex].accounts[globalAccountIndex].interestRate&&data.loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].interest)
+				?`<br><span style="color:red;">$${numberWithCommas(data.loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers[i1].interest.toFixed(2))}</span> <span>interest accrued</span>`
 				:``
 			contentQueue+=`
 				<details style="color:${COLOUR};">
@@ -375,14 +376,14 @@ const CONTENT_INNER={
 		<div class="card wrapper">
 			<h3 id="financial-holdings-liquid-header" class="header">
 				<span>Liquid</span>
-				<span onClick="createEntry('financialHoldings','liquid')" class="button create-entry">+</span>
+				<span onClick="createEntry('data.financialHoldings','liquid')" class="button create-entry">+</span>
 			</h3>
 			<div id="financial-holdings-liquid"></div>
 		</div>
 		<div class="card wrapper">
 			<h3 id="financial-holdings-illiquid-header" class="header">
 				<span>Illiquid</span>
-				<span onClick="createEntry('financialHoldings','illiquid')" class="button create-entry">+</span>
+				<span onClick="createEntry('data.financialHoldings','illiquid')" class="button create-entry">+</span>
 			</h3>
 			<div id="financial-holdings-illiquid"></div>
 		</div>
@@ -453,7 +454,7 @@ function createEntry(sectionMajor,sectionMinor,counterpartyIndex,accountIndex){
 	document.getElementById(`page-cover`).classList.add(`cover`)
 	document.getElementById(`modal`).style=`animation:fade-in .2s forwards;`
 	switch(sectionMajor){
-		case `financialHoldings`:
+		case `data.financialHoldings`:
 			document.getElementById(`modal`).innerHTML=`
 				<h3 style="font-family:'montserrat-bold';">UPDATE ACCOUNT</h3>
 				<div style="display:flex;flex-direction:column;">
@@ -512,14 +513,14 @@ function closeDataEntry(){
 function submitData(sectionMajor,sectionMinor){
 	let stage
 	switch(sectionMajor){
-		case `financialHoldings`:
+		case `data.financialHoldings`:
 			if(!document.getElementById(`data-entry-name`).value.length)return
 			if(!document.getElementById(`data-entry-value`).value.length)return
 			if(!document.getElementById(`data-entry-value-date`).value.length)return
-			for(let i1=0;i1<financialHoldings[sectionMinor].length;i1++){
-				if(document.getElementById(`data-entry-name`).value==financialHoldings[sectionMinor][i1].account){
-					financialHoldings[sectionMinor][i1].records=financialHoldings[sectionMinor][i1].records.filter(record=>record.date.join(`-`)!=document.getElementById(`data-entry-value-date`).value)
-					financialHoldings[sectionMinor][i1].records.push(
+			for(let i1=0;i1<data.financialHoldings[sectionMinor].length;i1++){
+				if(document.getElementById(`data-entry-name`).value==data.financialHoldings[sectionMinor][i1].account){
+					data.financialHoldings[sectionMinor][i1].records=data.financialHoldings[sectionMinor][i1].records.filter(record=>record.date.join(`-`)!=document.getElementById(`data-entry-value-date`).value)
+					data.financialHoldings[sectionMinor][i1].records.push(
 						{date:document.getElementById(`data-entry-value-date`).value.split(`-`)
 						,balance:parseFloat(document.getElementById(`data-entry-value`).value)})
 					closeDataEntry()
@@ -528,7 +529,7 @@ function submitData(sectionMajor,sectionMinor){
 					return
 				}
 			}
-			financialHoldings[sectionMinor==`liquid`?`liquid`:`illiquid`].push(
+			data.financialHoldings[sectionMinor==`liquid`?`liquid`:`illiquid`].push(
 				{account:document.getElementById(`data-entry-name`).value
 				,records:[
 					{date:document.getElementById(`data-entry-value-date`).value.split(`-`)
@@ -539,7 +540,7 @@ function submitData(sectionMajor,sectionMinor){
 				case `counterparties`:
 					stage=0
 					if(!document.getElementById(`data-entry-name`).value.length)return
-					loans.push(
+					data.loans.push(
 						{counterparty:document.getElementById(`data-entry-name`).value
 						,accounts:[]})
 					break
@@ -549,7 +550,7 @@ function submitData(sectionMajor,sectionMinor){
 					if(!/^[0-9]+(\.[0-9]{1,2})?$/.test(document.getElementById(`data-entry-interest`).value)){
 						return
 					}
-					loans[globalCounterpartyIndex].accounts.push(
+					data.loans[globalCounterpartyIndex].accounts.push(
 						{account:document.getElementById(`data-entry-name`).value
 						,interestRate:document.getElementById(`data-entry-interest`).value/100
 						,transfers:[]})
@@ -558,7 +559,7 @@ function submitData(sectionMajor,sectionMinor){
 					stage=2
 					if(!document.getElementById(`data-entry-value`).value.length)return
 					if(!document.getElementById(`data-entry-value-date`).value.length)return
-					loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers.push(
+					data.loans[globalCounterpartyIndex].accounts[globalAccountIndex].transfers.push(
 						{date:document.getElementById(`data-entry-value-date`).value.split(`-`)
 						,transfer:parseFloat(document.getElementById(`data-entry-value`).value)})
 					open=1
@@ -617,11 +618,10 @@ function replacer(key,value){
 	return value
 }
 function downloadMemory(){
-	if(!(loans.length+financialHoldings.liquid.length+financialHoldings.illiquid.length)){
+	if(!(data.loans.length+data.financialHoldings.liquid.length+data.financialHoldings.illiquid.length)){
 		alert(`There is no data to save.`)
 		return
 	}
-	const data={financialHoldings:financialHoldings,loans:loans}
 	const arrayedDate=new Date().toISOString().split(`T`)[0].split(`-`)
 	const filename=`financials (${arrayedDate[2]}${dateToOrdinalSuffix(arrayedDate[2])} ${monthToMonthName[parseInt(arrayedDate[1])-1]} ${arrayedDate[0]} UTC).json`
 	const content=`${JSON.stringify(data,replacer)}`
