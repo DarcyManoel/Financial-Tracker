@@ -1,5 +1,31 @@
+const HTML_MODAL={
+	landing:`
+		<h1>Welcome!</h1>
+		This webpage allows you to track your financial situation, offering a comprehensive view of your income, expenses, and savings. With intuitive tools and real-time insights, you can make informed decisions to stay on top of your finances.
+		<br>
+		<br>
+		To begin, you can close this dialogue or upload a file to resume previously made progress.
+		<h3 style="display:flex;gap:.5rem;justify-content:center;">
+			<div onClick="closeLandingModal()" class="button button-close">
+				Close
+			</div>
+			<div class="button button-continue">
+				<label for="file-input">
+					Upload File
+				</label>
+				<input id="file-input" type="file" accept=".json" onChange="uploadFile(this)" style="display:none;"/>
+			</div>
+		</h3>
+		<hr>
+		<div class="modal-footnotes">
+			psst..
+			<h6>
+				the uploaded file should be a .json file formatted by this site previously.
+			</h6>
+		</div>`}
+document.getElementById(`modal`).innerHTML=HTML_MODAL.landing
 function closeLandingModal(){
-	document.getElementById(`landing-modal`).style=`animation:fade-out .2s forwards;`
+	document.getElementById(`modal`).style=`animation:fade-out .2s forwards;`
 	document.getElementById(`content`).style=`animation:fade-in .2s;`
 	changeContent()
 }
@@ -425,10 +451,10 @@ const INSERTION_TEMPLATE_LOANS={
 let isMemoryChanged=0
 function createEntry(sectionMajor,sectionMinor,counterpartyIndex,accountIndex){
 	document.getElementById(`page-cover`).classList.add(`cover`)
-	document.getElementById(`data-entry`).style=`animation:fade-in .2s forwards;`
+	document.getElementById(`modal`).style=`animation:fade-in .2s forwards;`
 	switch(sectionMajor){
 		case `financialHoldings`:
-			document.getElementById(`data-entry`).innerHTML=`
+			document.getElementById(`modal`).innerHTML=`
 				<h3 style="font-family:'montserrat-bold';">UPDATE ACCOUNT</h3>
 				<div style="display:flex;flex-direction:column;">
 					<span id="data-entry-name-wrapper" data-before="!" style="color:initial;">
@@ -457,7 +483,7 @@ function createEntry(sectionMajor,sectionMinor,counterpartyIndex,accountIndex){
 				</div>`
 			break
 		case `loans`:
-			document.getElementById(`data-entry`).innerHTML=`
+			document.getElementById(`modal`).innerHTML=`
 				<h3 style="font-family:'montserrat-bold';">NEW ${INSERTION_TEMPLATE_LOANS[sectionMinor].section}</h3>
 				<div style="display:flex;flex-direction:column;">
 					${INSERTION_TEMPLATE_LOANS[sectionMinor].fields}
@@ -481,7 +507,7 @@ function testValidity(elementID){
 }
 function closeDataEntry(){
 	document.getElementById(`page-cover`).classList.remove(`cover`)
-	document.getElementById(`data-entry`).style=`animation:fade-out .2s forwards;`
+	document.getElementById(`modal`).style=`animation:fade-out .2s forwards;`
 }
 function submitData(sectionMajor,sectionMinor){
 	let stage

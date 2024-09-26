@@ -6,34 +6,9 @@
 		<title>Financial Tracker</title>
 	</head>
 	<body>
-		<div id="landing-modal" class="card modal" style="animation:fade-in .2s forwards;">
-			<h1>Welcome!</h1>
-			This webpage allows you to track your financial situation, offering a comprehensive view of your income, expenses, and savings. With intuitive tools and real-time insights, you can make informed decisions to stay on top of your finances.
-			<br>
-			<br>
-			To begin, you can close this dialogue or upload a file to resume previously made progress.
-			<h3 style="display:flex;gap:.5rem;justify-content:center;">
-				<div onClick="closeLandingModal()" class="button button-close">
-					Close
-				</div>
-				<div class="button button-continue">
-					<label for="file-input">
-						Upload File
-					</label>
-					<input id="file-input" type="file" accept=".json" onChange="uploadFile(this)" style="display:none;"/>
-				</div>
-			</h3>
-			<hr>
-			<div class="modal-footnotes">
-				psst..
-				<h6>
-					the uploaded file should be a .json file formatted by this site previously.
-				</h6>
-			</div>
-		</div>
+		<div id="page-cover" style="height:100vh;left:0;pointer-events:none;position:fixed;top:0;transition:.2s;width:100vw;z-index:2;"></div>
+		<div id="modal" class="card" style="animation:fade-in .2s forwards;"></div>
 		<div id="content" style="opacity:0;pointer-events:none;">
-			<div id="page-cover" style="height:100vh;left:0;pointer-events:none;position:fixed;top:0;transition:.2s;width:100vw;z-index:2;"></div>
-			<div id="data-entry" class="card modal" style="display:none;"></div>
 			<div id="menubar">
 				<select id="tracking-sections" onChange="changeContent()" class="button-frame card" style="appearance:none;border:none;">
 					<option>Financial Holdings</option>
