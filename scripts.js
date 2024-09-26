@@ -40,12 +40,8 @@ function uploadFile(file){
 	let fileReader=new FileReader()
 	fileReader.readAsText(files[0])
 	fileReader.onload=function(e){
-		try{
-			data=JSON.parse(e.target.result)
-			calculateAdditionalInformation()
-		}catch(error){
-			console.error(`Error parsing JSON:`,error)
-		}
+		data=JSON.parse(e.target.result)
+		calculateAdditionalInformation()
 	}
 }
 function calculateAdditionalInformation(stage){
