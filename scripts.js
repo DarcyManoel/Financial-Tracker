@@ -13,7 +13,6 @@ const HTML_MODAL={
 				<label for="file-input">
 					Upload File
 				</label>
-				<input id="file-input" type="file" accept=".json" onChange="uploadFile(this)" style="display:none;"/>
 			</div>
 		</h3>
 		<hr>
@@ -29,7 +28,7 @@ function closeLandingModal(){
 	document.getElementById(`content`).style=`animation:fade-in .2s;`
 	changeContent()}
 let data={
-	financialHoldings:{
+	funds:{
 		liquid:[],
 		illiquid:[]},
 	loans:[]}
@@ -43,8 +42,8 @@ function uploadFile(file){
 		calculateAdditionalInformation()}}
 function calculateAdditionalInformation(stage){
 	let pointer
-	//	financial holdings
-	pointer=`financialHoldings`
+	//	funds
+	pointer=`funds`
 	for(const[key,value]of Object.entries(data[pointer])){
 		for(let i1=0;i1<data[pointer][key].length;i1++){
 			data[pointer][key][i1].daysSinceLastTransfer=Math.round((new Date(data[pointer][key][i1].records[data[pointer][key][i1].records.length-1].date.join(`/`))-new Date(data[pointer][key][i1].records[0].date.join(`/`)))/86400000)
@@ -87,8 +86,8 @@ function calculateAdditionalInformation(stage){
 }
 function sortArrays(stage){
 	let pointer
-	//	financial holdings
-	pointer=`financialHoldings`
+	//	funds
+	pointer=`funds`
 	for(const[key,value]of Object.entries(data[pointer]))
 		for(let i1=0;i1<data[pointer][key].length;i1++)
 			data[pointer][key][i1].records=data[pointer][key][i1].records.sort(function(a,b){return a.date.join(``)-b.date.join(``)})
@@ -107,7 +106,7 @@ function sortArrays(stage){
 	renderContent(stage)}
 function renderContent(stage){
 	switch(selectedContentArea){
-		case `FinancialHoldings`:
+		case `Funds`:
 			renderFinancialHoldings()
 			break
 		case `Loans`:
@@ -118,8 +117,8 @@ const KEBABISE=(camelString)=>camelString.replace(/[A-Z]+(?![a-z])|[A-Z]/g,($,in
 function renderFinancialHoldings(){
 	let pointer
 	let contentQueue
-	//	financial holdings
-	pointer=`financialHoldings`
+	//	funds
+	pointer=`funds`
 	const DATE_TODAY=new Date(`${new Date().getFullYear()}/${new Date().getMonth()+1}/${new Date().getDate()}`)
 	for(const[key,value]of Object.entries(data[pointer])){
 		contentQueue=``
@@ -163,7 +162,7 @@ function renderFinancialHoldings(){
 			?`$${numberWithCommas(Math.abs(loansTotal).toFixed(2))}`
 			:`<span style="color:red;">-$${numberWithCommas(Math.abs(loansTotal).toFixed(2))}</span>`
 		contentQueue+=`
-			<details name="financialHoldings" style="color:green;">
+			<details name="funds" style="color:green;">
 				<summary>
 					<span>Loans</span>
 				</summary>
@@ -171,7 +170,7 @@ function renderFinancialHoldings(){
 				<br>
 				<span>updated</span> automatically
 			</details>`}
-	document.getElementById(`financial-holdings-intangible`).innerHTML=contentQueue}
+	document.getElementById(`funds-intangible`).innerHTML=contentQueue}
 function drawSparkline(canvasId,dataPoints,daysSinceLastTransfer,balanceAverage){
 	let canvas=document.getElementById(canvasId)
 	let canvasContext=canvas.getContext(`2d`)
@@ -310,27 +309,27 @@ function renderLoans(isOpen,stage,counterpartyIndex,accountIndex){
 		document.getElementById(`${pointer}-transfers`).innerHTML=contentQueue}
 	//
 	open=0}
-const CONTENT_INNER={
-	FinancialHoldings:`
+const CONTENT_SECTION={
+	Funds:`
 		<div class="card wrapper">
-			<h3 id="financial-holdings-liquid-header" class="header">
+			<h3 id="funds-liquid-header" class="header">
 				<span>Liquid</span>
-				<span onClick="createEntry('financialHoldings','liquid')" class="button create-entry">+</span>
+				<span onClick="createEntry('funds','liquid')" class="button create-entry">+</span>
 			</h3>
-			<div id="financial-holdings-liquid"></div>
+			<div id="funds-liquid"></div>
 		</div>
 		<div class="card wrapper">
-			<h3 id="financial-holdings-illiquid-header" class="header">
+			<h3 id="funds-illiquid-header" class="header">
 				<span>Illiquid</span>
-				<span onClick="createEntry('financialHoldings','illiquid')" class="button create-entry">+</span>
+				<span onClick="createEntry('funds','illiquid')" class="button create-entry">+</span>
 			</h3>
-			<div id="financial-holdings-illiquid"></div>
+			<div id="funds-illiquid"></div>
 		</div>
 		<div class="card wrapper">
-			<h3 id="financial-holdings-intangible-header" class="header">
+			<h3 id="funds-intangible-header" class="header">
 				<span>Intangible</span>
 			</h3>
-			<div id="financial-holdings-intangible" fade-if-empty></div>
+			<div id="funds-intangible" fade-if-empty></div>
 		</div>`,
 	Loans:`
 		<div class="card wrapper">
@@ -352,10 +351,10 @@ const CONTENT_INNER={
 			</h3>
 			<div id="loans-transfers" fade-if-empty></div>
 		</div>`}
-let selectedContentArea=`Financial Holdings`
+let selectedContentArea=`Funds`
 function changeContent(){
-	const CURRENT_CONTENT=document.getElementById(`tracking-sections`).value.replace(/ /g,``)
-	document.getElementById(`content-inner`).innerHTML=CONTENT_INNER[CURRENT_CONTENT]
+	const CURRENT_CONTENT=document.getElementById(`tracking-sections`).value
+	document.getElementById(`content-inner`).innerHTML=CONTENT_SECTION[CURRENT_CONTENT]
 	selectedContentArea=CURRENT_CONTENT
 	renderContent()}
 function numberWithCommas(x){
@@ -390,7 +389,7 @@ function createEntry(sectionMajor,sectionMinor,counterpartyIndex,accountIndex){
 	document.getElementById(`page-cover`).classList.add(`cover`)
 	document.getElementById(`modal`).style=`animation:fade-in .2s forwards;`
 	switch(sectionMajor){
-		case `financialHoldings`:
+		case `funds`:
 			document.getElementById(`modal`).innerHTML=`
 				<h3 style="font-family:'montserrat-bold';">UPDATE ACCOUNT</h3>
 				<div style="display:flex;flex-direction:column;">
@@ -445,7 +444,7 @@ function closeDataEntry(){
 function submitData(sectionMajor,sectionMinor){
 	let stage
 	switch(sectionMajor){
-		case `financialHoldings`:
+		case `funds`:
 			if(!document.getElementById(`data-entry-name`).value.length)return
 			if(!document.getElementById(`data-entry-value`).value.length)return
 			if(!document.getElementById(`data-entry-value-date`).value.length)return
@@ -540,8 +539,8 @@ function replacer(key,value){
 function downloadMemory(){
 	if(!
 		(data.loans.length
-		+data.financialHoldings.liquid.length
-		+data.financialHoldings.illiquid.length)){
+		+data.funds.liquid.length
+		+data.funds.illiquid.length)){
 			alert(`There is no data to save.`)
 			return}
 	const arrayedDate=new Date().toISOString().split(`T`)[0].split(`-`)
