@@ -6,17 +6,18 @@
 		<title>Financial Tracker</title>
 	</head>
 	<body>
+		<!-- hidden file input, upload labels point to this -->
+		<input id="file-input" type="file" accept=".json" onChange="uploadFile(this)" style="display:none;"/>
+		<!-- dark backdrop for modals, rendered over content but under data entry modal -->
 		<div id="page-cover" style="height:100vh;left:0;pointer-events:none;position:fixed;top:0;transition:.2s;width:100vw;z-index:2;"></div>
+		<!-- modal container, innerHTML inserted on a basis of need -->
 		<div id="modal" class="card" style="animation:fade-in .2s forwards;"></div>
+		<!-- static content, includes menubar and main content -->
 		<div id="content" style="opacity:0;pointer-events:none;">
 			<div id="menubar">
-				<select id="tracking-sections" onChange="changeContent()" class="button-frame card" style="appearance:none;border:none;">
-					<option>Funds</option>
-					<option>Loans</option>
-				</select>
+				<select id="tracking-sections" onChange="changeContent()" class="button-frame card" style="appearance:none;border:none;"></select>
 				<div id="memory-management" class="card-parent">
 					<label for="file-input" class="button-frame">Upload</label>
-					<input id="file-input" type="file" accept=".json" onChange="uploadFile(this)" style="display:none;"/>
 					<label onClick="downloadMemory()" class="button-frame">Download</label>
 				</div>
 			</div>

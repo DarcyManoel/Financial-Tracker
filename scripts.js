@@ -340,7 +340,7 @@ const CONTENT_SECTION={
 			</h3>
 			<div id="loans-transfers" fade-if-empty></div>
 		</div>`}
-let selectedContentArea=`Funds`
+document.getElementById(`tracking-sections`).innerHTML=`<option>${Object.keys(CONTENT_SECTION).join(`</option><option>`)}</option`
 function changeContent(){
 	const CURRENT_CONTENT=document.getElementById(`tracking-sections`).value
 	document.getElementById(`content-inner`).innerHTML=CONTENT_SECTION[CURRENT_CONTENT]
