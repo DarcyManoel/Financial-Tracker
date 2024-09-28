@@ -39,13 +39,14 @@ function uploadFile(file){
 	fileReader.readAsText(files[0])
 	fileReader.onload=function(e){
 		data=JSON.parse(e.target.result)
-		calculateAdditionalInformation()}}
-function calculateAdditionalInformation(stage){
+		processData()}}
+function processData(stage){
 	let pointer
 	//	funds
 	pointer=`funds`
 	for(const[key,value]of Object.entries(data[pointer])){
 		for(let i1=0;i1<data[pointer][key].length;i1++){
+			data[pointer][key][i1].records=data[pointer][key][i1].records.sort(function(a,b){return a.date.join(``)-b.date.join(``)})
 			data[pointer][key][i1].daysSinceLastTransfer=Math.round((new Date(data[pointer][key][i1].records[data[pointer][key][i1].records.length-1].date.join(`/`))-new Date(data[pointer][key][i1].records[0].date.join(`/`)))/86400000)
 			data[pointer][key][i1].records[0].daysSinceLastTransfer=0
 			let balanceAverage=data[pointer][key][i1].records[0].balance
@@ -81,18 +82,6 @@ function calculateAdditionalInformation(stage){
 			data[pointer][i1].accounts[i2].sumOfInterest=parseFloat(sumOfInterest)
 			sumOfAccounts+=sumOfTransfers-sumOfInterest}
 		data[pointer][i1].sumOfAccounts=parseFloat(sumOfAccounts)}
-	//
-	sortArrays(stage)
-}
-function sortArrays(stage){
-	let pointer
-	//	funds
-	pointer=`funds`
-	for(const[key,value]of Object.entries(data[pointer]))
-		for(let i1=0;i1<data[pointer][key].length;i1++)
-			data[pointer][key][i1].records=data[pointer][key][i1].records.sort(function(a,b){return a.date.join(``)-b.date.join(``)})
-	//	loans
-	pointer=`loans`
 	if(globalCounterpartyIndex){
 		let GLOBAL_COUNTERPARTY_NAME=data[pointer][globalCounterpartyIndex].counterparty
 		loans=data[pointer].sort(function(a,b){return a.sumOfAccounts-b.sumOfAccounts})
@@ -456,7 +445,7 @@ function submitData(sectionMajor,sectionMinor){
 						,balance:parseFloat(document.getElementById(`data-entry-value`).value)})
 					closeDataEntry()
 					isMemoryChanged=1
-					calculateAdditionalInformation()
+					processData()
 					return}
 			data[sectionMajor][sectionMinor==`liquid`?`liquid`:`illiquid`].push(
 				{account:document.getElementById(`data-entry-name`).value
@@ -490,14 +479,14 @@ function submitData(sectionMajor,sectionMinor){
 						{date:document.getElementById(`data-entry-value-date`).value.split(`-`)
 						,transfer:parseFloat(document.getElementById(`data-entry-value`).value)})
 					open=1
-					calculateAdditionalInformation(0)
+					processData(0)
 					open=1
-					calculateAdditionalInformation(1)
+					processData(1)
 					break}
 			break}
 	closeDataEntry()
 	isMemoryChanged=1
-	calculateAdditionalInformation(stage??``)}
+	processData(stage??``)}
 window.onbeforeunload=function(){
 	if(isMemoryChanged)return``}
 const dateToOrdinalSuffix=(date)=>{
