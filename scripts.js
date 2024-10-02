@@ -499,19 +499,6 @@ const dateToOrdinalSuffix=(date)=>{
 			return`rd`
 		default:
 			return`th`}}
-const monthToMonthName=
-	[`Jan`
-	,`Feb`
-	,`Mar`
-	,`Apr`
-	,`May`
-	,`Jun`
-	,`Jul`
-	,`Aug`
-	,`Sep`
-	,`Oct`
-	,`Nov`
-	,`Dec`]
 const UNNECESSARY_PROPERTIES=
 	[`daysSinceLastTransfer`
 	,`balanceAverage`
@@ -537,7 +524,7 @@ function downloadMemory(){
 		{type:`application/json`})
 	const link=Object.assign(document.createElement(`a`),{
 		href:URL.createObjectURL(file),
-		download:`financials (${arrayedDate[2]}${dateToOrdinalSuffix(arrayedDate[2])} ${monthToMonthName[parseInt(arrayedDate[1])-1]} ${arrayedDate[0]} UTC).json`})
+		download:`financials (${arrayedDate[0]}-${parseInt(arrayedDate[1])}-${arrayedDate[2]} UTC).json`})
 	link.click()
 	URL.revokeObjectURL(link.href)
 	isMemoryChanged=0}
