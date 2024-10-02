@@ -34,12 +34,11 @@ let data={
 	loans:[]}
 function uploadFile(file){
 	closeLandingModal()
-	let files=event.target.files
-	let fileReader=new FileReader()
-	fileReader.readAsText(files[0])
-	fileReader.onload=function(e){
+	const reader=new FileReader()
+	reader.onload=e=>{
 		data=JSON.parse(e.target.result)
-		processData()}}
+		processData()}
+	reader.readAsText(event.target.files[0])}
 function processData(stage){
 	let pointer
 	//	funds
@@ -533,14 +532,12 @@ function downloadMemory(){
 			alert(`There is no data to save.`)
 			return}
 	const arrayedDate=new Date().toISOString().split(`T`)[0].split(`-`)
-	const filename=`financials (${arrayedDate[2]}${dateToOrdinalSuffix(arrayedDate[2])} ${monthToMonthName[parseInt(arrayedDate[1])-1]} ${arrayedDate[0]} UTC).json`
-	const content=`${JSON.stringify(data,replacer)}`
-	const file=new Blob([content],{type:`application/json`})
-	const link=document.createElement(`a`)
-	link.href=URL.createObjectURL(file)
-	link.download=filename
-	document.body.appendChild(link)
+	const file=new Blob(
+		[JSON.stringify(data)],
+		{type:`application/json`})
+	const link=Object.assign(document.createElement(`a`),{
+		href:URL.createObjectURL(file),
+		download:`financials (${arrayedDate[2]}${dateToOrdinalSuffix(arrayedDate[2])} ${monthToMonthName[parseInt(arrayedDate[1])-1]} ${arrayedDate[0]} UTC).json`})
 	link.click()
-	document.body.removeChild(link)
 	URL.revokeObjectURL(link.href)
 	isMemoryChanged=0}
